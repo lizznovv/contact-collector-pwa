@@ -1,2 +1,7 @@
 .idea/
 *.iml
+/.env
+vendor/
+node_modules/
+docker/mysql/
+database/mysql/
