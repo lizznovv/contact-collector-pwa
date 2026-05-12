@@ -33,7 +33,7 @@ services:
             MYSQL_PASSWORD: '${DB_PASSWORD}'
             MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         volumes:
-            - './database/mysql:/var/lib/mysql'
+            - mariadb-data:/var/lib/mysql
         networks:
             - pwa-network
 
@@ -41,3 +41,5 @@ services:
 networks:
     pwa-network:
         driver: bridge
+volumes:
+    mariadb-data:
