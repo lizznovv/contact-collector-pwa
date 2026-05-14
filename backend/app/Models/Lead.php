@@ -16,7 +16,6 @@ class Lead extends Model
         'email',
         'event',
         'service',
-        'status',
         'created_at'
     ];
 }

@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('full_name');
-            $table->string('phone')->unique();
-            $table->string('email')->unique();
-            $table->string('event');
+            $table->string('phone');
+            $table->string('email');
+
+            $table->string('company');
+            $table->string('position')->nullable();
+
+            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->string('service');
-            $table->string('status');
             $table->timestamps();
         });
     }
