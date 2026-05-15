@@ -27,36 +27,26 @@ class UserController extends Controller
                 'password' => $validated['password']
             ];
         }
-        if (Auth::attempt($credentials)) {
-            //$request->session()->regenerate();
-
+        if (!$token = Auth::guard('api')->attempt($credentials)) {
             return response()->json([
-                'message' => 'Login successful',
-                'user' => Auth::user()
-            ]);
-            //return redirect()->intended('dashboard');
+                'message' => 'Неправильный логин или пароль'
+            ], 401);
         }
 
         return response()->json([
-            'message' => 'Invalid credentials'
-        ], 401);
-
-        /*return back()
-            ->withErrors(['login' => 'Неправильный логин или пароль'])
-            ->onlyInput('login');
-        */
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'user' => Auth::guard('api')->user(),
+        ]);
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
-        Auth::logout();
-        //$request->session()->invalidate();
-        //$request->session()->regenerateToken();
+        Auth::guard('api')->logout();
 
         return response()->json([
-            'message' => 'Logout successful'
+            'message' => 'Successfully logged out'
         ]);
-        //return redirect()->route('login');
     }
 
 }
