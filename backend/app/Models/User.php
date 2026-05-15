@@ -34,6 +34,6 @@ class User extends Authenticatable
     }
     public function leads()
     {
-        return $this->hasMany(Lead::class);
+        return $this->hasMany(Lead::class, 'user_id');
     }
 }
