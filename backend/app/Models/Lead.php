@@ -18,4 +18,19 @@ class Lead extends Model
         'service',
         'created_at'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Events::class);
+    }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
+    }
 }
