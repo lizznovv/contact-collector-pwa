@@ -14,14 +14,11 @@ return new class extends Migration
             $table->string('full_name');
             $table->string('phone');
             $table->string('email');
-            $table->foreignId('event_id')
-                ->constrained()
-                ->cascadeOnDelete();
+            $table->foreignId('event_id')->constrained()->cascadeOnDelete();
 
             $table->string('company');
             $table->string('position')->nullable();
 
-           // $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->string('service');
             $table->timestamps();
         });
