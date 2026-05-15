@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('company');
             $table->string('position')->nullable();
 
-            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
+           // $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->string('service');
             $table->timestamps();
         });

@@ -7,6 +7,7 @@ ARG NODE_VERSION=18
 ARG POSTGRES_VERSION=15
 
 WORKDIR /var/www/html
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC

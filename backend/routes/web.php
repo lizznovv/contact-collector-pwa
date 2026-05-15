@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\ManagerController;
+use App\Http\Controllers\UserController;
+
 
 
 Route::get('/', function () {
@@ -22,7 +25,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
 
-    Route::middleware('role:manager')->group(function () {
+    Route::middleware('role:manager,admin')->group(function () {
         Route::get('/leads/index', [LeadController::class, 'index'])->name('leads.index');
         Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
         Route::post('/leads/store', [LeadController::class, 'store'])->name('leads.store');
@@ -33,14 +36,15 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin')->group(function () {
-        Route::get('manager/form/{user?}', [ManagerController::class, 'formManager'])->name('form_manager');
-        Route::post('manager/create', [ManagerController::class, 'createManager'])->name('add_manager');
-        Route::put('manager/{id}/update', [ManagerController::class, 'updateManager'])->name('update_manager');
-        Route::get('manager/list', [ManagerController::class, 'listManager'])->name('list_manager');
-        Route::post('manager/{user}/status', [ManagerController::class, 'blockStatusManager'])->name('block_status_manager');
-        Route::get('manager/{user}/resetPassword', [ManagerController::class, 'resetPasswordManager'])->name('reset_password');
+        Route::get('/managers/index', [ManagerController::class, 'index'])->name('managers.index');
+        Route::get('/managers/create', [ManagerController::class, 'create'])->name('managers.create');
+        Route::post('/managers/store', [ManagerController::class, 'store'])->name('managers.store');
+        Route::get('/managers/{id}/edit', [ManagerController::class, 'edit'])->name('managers.edit');
+        Route::put('/managers/{id}/update', [ManagerController::class, 'update'])->name('managers.update');
+        Route::delete('/managers/{id}/destroy', [ManagerController::class, 'destroy'])->name('managers.destroy');
+        Route::get('/managers/{id}/show', [ManagerController::class, 'show'])->name('managers.show');
     });
 
-    Route::get('/logout', [UserController::class, 'logout'])->name('logout');
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
 });

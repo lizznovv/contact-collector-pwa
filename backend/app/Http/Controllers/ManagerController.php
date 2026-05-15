@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Lead;
 use Illuminate\Http\Request;
-use Illuminate\Http\ManagerRequest;
+use App\Http\Requests\ManagerRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,12 +13,16 @@ class ManagerController extends Controller
     public function index()
     {
         $managers = User::where('role', 'manager')->get();
-        //формы позже пропишу
-        return view('managers.index', compact('managers'));
+
+        return response()->json([
+            'managers' => $managers
+        ]);
     }
     public function create()
     {
-        return view('managers.create');
+        return response()->json([
+            'message' => 'successfully created'
+        ]);
     }
     public function store(Request $request)
     {
@@ -37,7 +41,11 @@ class ManagerController extends Controller
             throw $exception;
         }
 
-        return redirect()->route('managers.index');
+        return response()->json([
+            'message' => 'Manager created successfully',
+            'manager' => $manager
+        ], 201);
+        //return redirect()->route('managers.index');
     }
     public function show($id)
     {
@@ -45,7 +53,9 @@ class ManagerController extends Controller
             ->where('role', 'manager')
             ->firstOrFail();
 
-        return view('managers.show', compact('manager'));
+        return response()->json([
+            'manager' => $manager
+        ]);
     }
     public function edit($id)
     {
@@ -53,7 +63,9 @@ class ManagerController extends Controller
             ->where('role', 'manager')
             ->firstOrFail();
 
-        return view('managers.edit', compact('manager'));
+        return response()->json([
+            'manager' => $manager
+        ]);
     }
     public function update(ManagerRequest $request, $id)
     {
@@ -62,11 +74,25 @@ class ManagerController extends Controller
             ->where('role', 'manager')
             ->firstOrFail();
         $manager->update($validated);
+
+        return response()->json([
+            'message' => 'Manager updated successfully',
+            'manager' => $manager
+        ]);
         //роуты позже пропишу
-        return redirect()->route('managers.index');
+        //return redirect()->route('managers.index');
     }
     public function destroy($id)
     {
-        //
+        $manager = User::where('id', $id)
+            ->where('role', 'manager')
+            ->firstOrFail();
+        $manager->delete();
+
+        return response()->json([
+            'message' => 'Manager deleted successfully'
+        ]);
+        //роуты позже пропишу
+        //return redirect()->route('managers.index');
     }
 }

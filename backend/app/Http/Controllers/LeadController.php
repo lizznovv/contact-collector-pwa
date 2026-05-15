@@ -11,12 +11,12 @@ class LeadController extends Controller
     public function index()
     {
         $leads = Lead::all();
-        //формы позже пропишу
-        return view('leads.index', compact('leads'));    }
+
+        return response()->json(['leads' => $leads]);
+    }
     public function create()
     {
-        //формы позже пропишу
-        return view('leads.create');
+        return response()->json(['message' => 'Create lead form']);
     }
     public function store(LeadRequest $request)
     {
@@ -36,35 +36,47 @@ class LeadController extends Controller
             //потом логирование добавлю
             throw $exception;
         }
-        //роуты позже пропишу
-        return redirect()->route('leads.index');
+        return response()->json([
+            'message' => 'Lead created successfully',
+            'lead' => $lead
+        ], 201);
+        //return redirect()->route('leads.index');
     }
     public function show($id)
     {
         $lead = Lead::findOrFail($id);
-        //формы позже пропишу
-        return view('leads.show', compact('lead'));
+
+        return response()->json(['lead' => $lead]);
     }
     public function edit($id)
     {
         $lead = Lead::findOrFail($id);
-        //формы позже пропишу
-        return view('leads.edit', compact('lead'));
+
+        return response()->json(['lead' => $lead]);
     }
     public function update(LeadRequest $request, $id)
     {
         $validated = $request->validated();
         $lead = Lead::findOrFail($id);
         $lead->update($validated);
+
+        return response()->json([
+            'message' => 'Lead updated successfully',
+            'lead' => $lead
+        ]);
         //роуты позже пропишу
-        return redirect()->route('leads.index');
+        //return redirect()->route('leads.index');
     }
     public function destroy($id)
     {
         $lead = Lead::findOrFail($id);
         $lead->delete();
+
+        return response()->json([
+            'message' => 'Lead deleted successfully'
+        ]);
         //роуты позже пропишу
-        return redirect()->route('leads.index');
+       // return redirect()->route('leads.index');
     }
 
 }
