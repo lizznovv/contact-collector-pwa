@@ -18,20 +18,15 @@ class ManagerController extends Controller
             'managers' => $managers
         ]);
     }
-    public function create()
+    public function store(ManagerRequest $request)
     {
-        return response()->json([
-            'message' => 'successfully created'
-        ]);
-    }
-    public function store(Request $request)
-    {
-        $validated = $request->validate();
+        $validated = $request->validated();
         try {
             $manager = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'password' => Hash::make($request->password),
+                'phone' => $validated['phone'],
+                'password' => $validated['password'],
                 'role' => 'manager',
             ]);
         }
@@ -45,19 +40,8 @@ class ManagerController extends Controller
             'message' => 'Manager created successfully',
             'manager' => $manager
         ], 201);
-        //return redirect()->route('managers.index');
     }
     public function show($id)
-    {
-        $manager = User::where('id', $id)
-            ->where('role', 'manager')
-            ->firstOrFail();
-
-        return response()->json([
-            'manager' => $manager
-        ]);
-    }
-    public function edit($id)
     {
         $manager = User::where('id', $id)
             ->where('role', 'manager')
@@ -70,29 +54,28 @@ class ManagerController extends Controller
     public function update(ManagerRequest $request, $id)
     {
         $validated = $request->validated();
+
         $manager = User::where('id', $id)
             ->where('role', 'manager')
             ->firstOrFail();
+
         $manager->update($validated);
 
         return response()->json([
             'message' => 'Manager updated successfully',
             'manager' => $manager
         ]);
-        //роуты позже пропишу
-        //return redirect()->route('managers.index');
     }
     public function destroy($id)
     {
         $manager = User::where('id', $id)
             ->where('role', 'manager')
             ->firstOrFail();
+
         $manager->delete();
 
         return response()->json([
             'message' => 'Manager deleted successfully'
         ]);
-        //роуты позже пропишу
-        //return redirect()->route('managers.index');
     }
 }

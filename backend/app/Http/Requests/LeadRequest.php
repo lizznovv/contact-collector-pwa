@@ -12,7 +12,7 @@ class LeadRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,8 +26,9 @@ class LeadRequest extends FormRequest
             'full_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'required|email',
-            'event' => 'required|string|max:255',
-            'service' => 'required|string|max:255',
+            'event_id' => 'required|integer|',
+            'company' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
         ];
     }
 }

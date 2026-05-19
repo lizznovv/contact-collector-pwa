@@ -5,11 +5,10 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\UserController;
 
-
-
+/*
 Route::get('/', function () {
     if (Auth::user()) {
-        return redirect()->route('home');
+        return redirect()->route('/');
     } else {
         return redirect('login');
     }
@@ -48,3 +47,4 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
 });
+*/
