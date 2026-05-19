@@ -15,7 +15,8 @@ class Lead extends Model
         'phone',
         'email',
         'event',
-        'service',
+        'product',
+        'position',
         'created_at'
     ];
 

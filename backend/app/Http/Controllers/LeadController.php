@@ -28,7 +28,7 @@ class LeadController extends Controller
                 'phone' => $validated['phone'],
                 'email' => $validated['email'],
                 'event' => $validated['event'],
-                'service' => $validated['service'],
+                'product' => $validated['product'],
             ]);
         }
         catch (\Exception $exception)
