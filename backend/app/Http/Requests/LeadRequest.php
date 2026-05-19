@@ -27,7 +27,7 @@ class LeadRequest extends FormRequest
             'phone' => 'required|string|max:20',
             'email' => 'required|email',
             'event' => 'required|string|max:255',
-            'service' => 'required|string|max:255',
+            'product' => 'required|string|max:255',
         ];
     }
 }
