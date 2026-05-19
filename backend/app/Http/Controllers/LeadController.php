@@ -14,21 +14,19 @@ class LeadController extends Controller
 
         return response()->json(['leads' => $leads]);
     }
-    public function create()
-    {
-        return response()->json(['message' => 'Create lead form']);
-    }
     public function store(LeadRequest $request)
     {
         $validated = $request->validated();
 
         try {
             $lead = Lead::create([
+                'user_id' => auth()->id(),
                 'full_name' => $validated['full_name'],
                 'phone' => $validated['phone'],
                 'email' => $validated['email'],
-                'event' => $validated['event'],
-                'product' => $validated['product'],
+                'event_id' => $validated['event_id'],
+                'company' => $validated['company'] ?? null,
+                'position' => $validated['position'] ?? null,
             ]);
         }
         catch (\Exception $exception)
@@ -40,15 +38,8 @@ class LeadController extends Controller
             'message' => 'Lead created successfully',
             'lead' => $lead
         ], 201);
-        //return redirect()->route('leads.index');
     }
     public function show($id)
-    {
-        $lead = Lead::findOrFail($id);
-
-        return response()->json(['lead' => $lead]);
-    }
-    public function edit($id)
     {
         $lead = Lead::findOrFail($id);
 
@@ -64,8 +55,7 @@ class LeadController extends Controller
             'message' => 'Lead updated successfully',
             'lead' => $lead
         ]);
-        //роуты позже пропишу
-        //return redirect()->route('leads.index');
+
     }
     public function destroy($id)
     {
@@ -75,8 +65,7 @@ class LeadController extends Controller
         return response()->json([
             'message' => 'Lead deleted successfully'
         ]);
-        //роуты позже пропишу
-       // return redirect()->route('leads.index');
+
     }
 
 }

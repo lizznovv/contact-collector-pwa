@@ -14,9 +14,9 @@ class Lead extends Model
         'full_name',
         'phone',
         'email',
-        'event',
-        'product',
-        'created_at'
+        'event_id',
+        'company',
+        'position',
     ];
 
     public function user()
@@ -26,7 +26,7 @@ class Lead extends Model
 
     public function event()
     {
-        return $this->belongsTo(Events::class);
+        return $this->belongsTo(Event::class);
     }
 
     public function products()

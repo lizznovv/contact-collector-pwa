@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('company');
             $table->string('position')->nullable();
 
-            $table->string('service');
             $table->timestamps();
         });
     }
