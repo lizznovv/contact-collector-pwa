@@ -6,6 +6,9 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,6 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+        ]);
+        $middleware->redirectGuestsTo(function (){
+            return null;
+        });
+        $middleware->alias([
+            'xss.protect' => \App\Http\Middleware\XssSanitizerMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -35,6 +44,22 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'message' => 'Resource not found.'
                 ], 404);
+            }
+        });
+        $exceptions->render(function(TokenExpiredException $e, Request $request)
+        {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Token expired.'
+                ], 401);
+            }
+        });
+        $exceptions->render(function(TooManyRequestsHttpException $e, Request $request)
+        {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Too many requests.'
+                ], 429);
             }
         });
 

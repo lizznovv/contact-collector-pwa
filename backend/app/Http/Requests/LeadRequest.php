@@ -24,9 +24,9 @@ class LeadRequest extends FormRequest
     {
         return [
             'full_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|regex:/^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/',
             'email' => 'required|email',
-            'event_id' => 'required|integer|',
+            'event_id' => 'required|integer|exists:events,id',
             'company' => 'required|string|max:255',
             'position' => 'required|string|max:255',
         ];

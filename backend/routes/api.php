@@ -6,12 +6,15 @@ use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 
-Route::post('/login', [UserController::class, 'login']);
+Route::post('/login', [UserController::class, 'login'])
+    ->middleware('throttle:auth');
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(function () {
+
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
     Route::middleware('role:admin,manager')->group(function () {
 
         Route::prefix('leads')->group(function () {
@@ -36,6 +39,7 @@ Route::middleware('auth:api')->group(function () {
         });
     });
 
+    Route::post('/refresh', [UserController::class, 'refresh']);
     Route::post('/logout', [UserController::class, 'logout']);
 
 });

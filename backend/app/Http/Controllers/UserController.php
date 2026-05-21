@@ -35,6 +35,7 @@ class UserController extends Controller
 
         return response()->json([
             'access_token' => $token,
+            'refresh_token' => $token,
             'token_type' => 'bearer',
             'user' => Auth::guard('api')->user(),
         ]);
@@ -49,4 +50,11 @@ class UserController extends Controller
         ]);
     }
 
+    public function refresh()
+    {
+        return response()->json([
+            'access_token' => Auth::guard('api')->refresh(),
+            'token_type' => 'bearer',
+        ]);
+    }
 }
