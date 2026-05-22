@@ -13,6 +13,8 @@ class XssSanitizerMiddleware
         'password',
         'token',
         'refresh_token',
+        'email',
+        'phone',
     ];
     /**
      * Handle an incoming request.
