@@ -31,4 +31,15 @@ class LeadRequest extends FormRequest
             'position' => 'required|string|max:255',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'phone.regex' => 'Телефон должен соответствовать формату +7 (xxx) xxx-xx-xx.',
+            'email.email' => 'Неверный формат email адреса.',
+            'required' => 'Поле :attribute обязательно для заполнения.',
+        ];
+    }
+
+
 }

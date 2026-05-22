@@ -20,13 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'xss.protect' => \App\Http\Middleware\XssSanitizerMiddleware::class,
         ]);
+
         $middleware->redirectGuestsTo(function (){
             return null;
         });
-        $middleware->alias([
-            'xss.protect' => \App\Http\Middleware\XssSanitizerMiddleware::class,
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 

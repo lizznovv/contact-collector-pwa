@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LeadRequest;
 use App\Models\Lead;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class LeadController extends Controller
 {
@@ -35,6 +36,8 @@ class LeadController extends Controller
             throw $exception;
         }
         return response()->json([
+            'status' => 'success',
+            'id' => $lead->id,
             'message' => 'Lead created successfully',
             'lead' => $lead
         ], 201);
@@ -65,7 +68,15 @@ class LeadController extends Controller
         return response()->json([
             'message' => 'Lead deleted successfully'
         ]);
+    }
 
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'status' => 'error',
+            'message' => 'Невалидные данные.',
+            'errors' => $validator->errors()
+        ], 400));
     }
 
 }

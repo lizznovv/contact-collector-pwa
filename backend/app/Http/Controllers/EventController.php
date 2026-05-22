@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Events;
+use App\Models\Event;
 use App\Http\Requests\EventRequest;
 use Illuminate\Support\Facades\Log;
 
@@ -11,7 +11,7 @@ class EventController extends Controller
 {
     public function index()
     {
-        $events = Events::all();
+        $events = Event::all();
         return response()->json(['$events' => $events]);
     }
 
@@ -21,7 +21,7 @@ class EventController extends Controller
         $validated = $request->validated();
 
         try {
-            $event = Events::create($validated);
+            $event = Event::create($validated);
         }
         catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -40,7 +40,7 @@ class EventController extends Controller
 
     public function show($id)
     {
-        $event = Events::findOrFail($id);
+        $event = Event::findOrFail($id);
 
         return response()->json(['event' => $event]);
     }
@@ -49,7 +49,7 @@ class EventController extends Controller
     public function update(EventRequest $request, $id)
     {
         $validated = $request->validated();
-        $event = Events::findOrFail($id);
+        $event = Event::findOrFail($id);
         $event->update($validated);
 
         return response()->json([
@@ -61,7 +61,7 @@ class EventController extends Controller
 
     public function destroy($id)
     {
-        $event = Events::findOrFail($id);
+        $event = Event::findOrFail($id);
         $event->delete();
 
         return response()->json([

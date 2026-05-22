@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ManagerController;
@@ -8,6 +10,15 @@ use Illuminate\Http\Request;
 
 Route::post('/login', [UserController::class, 'login'])
     ->middleware('throttle:auth');
+
+Route::get('/users', [UserController::class, 'index']);
+Route::get('/users/{id}', [UserController::class, 'show']);
+
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+
+Route::get('/events', [EventController::class, 'index']);
+Route::get('/events/{id}', [EventController::class, 'show']);
 
 Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(function () {
 
@@ -35,6 +46,18 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
                 Route::get('/{id}', [ManagerController::class, 'show']);
                 Route::put('/{id}', [ManagerController::class, 'update']);
                 Route::delete('/{id}', [ManagerController::class, 'destroy']);
+            });
+
+            Route::prefix('events')->group(function () {
+                Route::post('/', [EventController::class, 'store']);
+                Route::put('/{id}', [EventController::class, 'update']);
+                Route::delete('/{id}', [EventController::class, 'destroy']);
+            });
+
+            Route::prefix('products')->group(function () {
+                Route::post('/', [ProductController::class, 'store']);
+                Route::put('/{id}', [ProductController::class, 'update']);
+                Route::delete('/{id}', [ProductController::class, 'destroy']);
             });
         });
     });
