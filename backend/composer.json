@@ -11,6 +11,7 @@
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "mews/purifier": "^3.4",
+        "spatie/laravel-backup": "^10.2",
         "tymon/jwt-auth": "^2.3"
     },
     "require-dev": {
