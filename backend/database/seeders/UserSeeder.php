@@ -18,14 +18,14 @@ class UserSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@test.com',
             'phone' => '123456789',
-            'password' => Hash::make('password'),
+            'password' => 'password',
             'role' => 'admin',
         ]);
         User::create([
             'name' => 'Manager',
             'email' => 'manager@test.com',
             'phone' => '987654321',
-            'password' => Hash::make('password'),
+            'password' => 'password',
             'role' => 'manager',
         ]);
     }

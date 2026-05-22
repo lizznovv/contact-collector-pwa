@@ -5,3 +5,5 @@ vendor/
 node_modules/
 docker/mysql/
 database/mysql/
+backups/
+restore-test/
