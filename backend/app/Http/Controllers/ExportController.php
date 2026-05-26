@@ -46,7 +46,7 @@ class ExportController extends Controller
             fputcsv($handle, [
                 'ID', 'Фио', 'Телефон', 'Email',
                 'Мероприятие', 'Компания', 'Должность',
-                'Статус', 'Продукты', 'Дата создания'
+                'Статус', 'Продукты/Сервисы', 'Дата создания'
             ], ';');
 
             foreach ($leads as $lead) {
@@ -78,7 +78,7 @@ class ExportController extends Controller
         $rows[] = [
             'ID', 'Фио', 'Телефон', 'Email',
             'Мероприятие', 'Компания', 'Должность',
-            'Статус', 'Продукты', 'Дата создания'
+            'Статус', 'Продукты/Сервисы', 'Дата создания'
         ];
 
         foreach ($leads as $lead) {
