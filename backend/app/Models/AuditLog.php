@@ -13,12 +13,8 @@ class AuditLog extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'user_id',
-        'action_type',
-        'entity_type',
-        'entity_id',
-        'payload',
-        'created_at',
+        'user_id', 'action_type', 'entity_type',
+        'entity_id', 'payload', 'ip_address', 'status', 'error_message',
     ];
 
     protected $casts = [

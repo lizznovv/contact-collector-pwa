@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LeadRequest;
 use App\Models\Lead;
+use App\Services\AuditLogger;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -49,13 +50,20 @@ class LeadController extends Controller
                 'position' => $validated['position'] ?? null,
             ]);
 
+            AuditLogger::log(
+                'CREATE_LEAD',
+                entityType: 'Lead',
+                entityId: $lead->id,
+                payload: ['phone' => $lead->phone, 'email' => $lead->email]
+            );
+
             if (!empty($validated['product'])) {
                 $lead->products()->attach($validated['product']);
             }
         }
         catch (\Exception $exception)
         {
-            //потом логирование добавлю
+            AuditLogger::log('CREATE_LEAD', 'error', errorMessage: $exception->getMessage());
             throw $exception;
         }
         return response()->json([
@@ -78,7 +86,19 @@ class LeadController extends Controller
     {
         $validated = $request->validated();
         $lead = Lead::findOrFail($id);
+
+        $old = $lead->only(['full_name', 'phone', 'email', 'company', 'position']);
         $lead->update($validated);
+
+        AuditLogger::log(
+            'UPDATE_LEAD',
+            entityType: 'Lead',
+            entityId: $lead->id,
+            payload: [
+                'before' => $old,
+                'after'  => $lead->only(['full_name', 'phone', 'email', 'company', 'position']),
+            ]
+        );
 
         return response()->json([
             'message' => 'Lead updated successfully',
@@ -89,6 +109,17 @@ class LeadController extends Controller
     public function destroy($id)
     {
         $lead = Lead::findOrFail($id);
+
+        AuditLogger::log(
+            'DELETE_LEAD',
+            entityType: 'Lead',
+            entityId: $lead->id,
+            payload: [
+                'phone' => $lead->phone,
+                'email' => $lead->email,
+            ]
+        );
+
         $lead->delete();
 
         return response()->json([

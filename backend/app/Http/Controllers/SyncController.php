@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -60,14 +61,12 @@ class SyncController extends Controller
                     'status' => 'synced',
                     'code'   => 200,
                 ];
-            } catch (\Exception $e) {
-                $results[] = [
-                    'id'      => $item['id'] ?? null,
-                    'status'  => 'error',
-                    'code'    => 500,
-                    'message' => 'Sync failed.',
-                    "error_code" => "SYNC_FAILED",
-                ];
+
+                AuditLogger::log('SYNC_SUCCESS');
+
+            } catch (\Exception $exception) {
+                AuditLogger::log('SYNC_ERROR', 'error', errorMessage: $exception->getMessage());
+                throw $exception;
             }
         }
 

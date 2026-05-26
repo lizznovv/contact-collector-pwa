@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use App\Http\Requests\ManagerRequest;
 use App\Models\User;
@@ -29,10 +30,18 @@ class ManagerController extends Controller
                 'password' => $validated['password'],
                 'role' => 'manager',
             ]);
+
+            AuditLogger::log(
+                'CREATE_MANAGER',
+                entityType: 'User',
+                entityId: $manager->id,
+                payload: ['name' => $manager->name, 'email' => $manager->email]
+            );
+
         }
         catch (\Exception $exception) {
 
-            //потом логирование добавлю
+            AuditLogger::log('CREATE_MANAGER', 'error', errorMessage: $exception->getMessage());
             throw $exception;
         }
 
@@ -59,7 +68,18 @@ class ManagerController extends Controller
             ->where('role', 'manager')
             ->firstOrFail();
 
+        $old = $manager->only(['name', 'email', 'phone']);
         $manager->update($validated);
+
+        AuditLogger::log(
+            'UPDATE_MANAGER',
+            entityType: 'User',
+            entityId: $manager->id,
+            payload: [
+                'before' => $old,
+                'after'  => $manager->only(['name', 'email', 'phone']),
+            ]
+        );
 
         return response()->json([
             'message' => 'Manager updated successfully',
@@ -71,6 +91,13 @@ class ManagerController extends Controller
         $manager = User::where('id', $id)
             ->where('role', 'manager')
             ->firstOrFail();
+
+        AuditLogger::log(
+            'DELETE_MANAGER',
+            entityType: 'User',
+            entityId: $manager->id,
+            payload: ['name' => $manager->name, 'email' => $manager->email]
+        );
 
         $manager->delete();
 
