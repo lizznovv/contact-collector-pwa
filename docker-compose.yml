@@ -22,20 +22,17 @@ services:
 
     pwa-frontend:
         build:
-            context: .
+            context: ./frontend
             dockerfile: Dockerfile
-            args:
-              WWWGROUP: '${WWWGROUP}'
-        image: pwa-backend # Используем тот же образ
         ports:
-          - "5173:5173"
-        environment:
-            WWWUSER: '${WWWUSER}'
+            - "5173:5173"
         volumes:
-            - './frontend:/var/www/html'
-            - './certs:/var/www/html/certs'
-        working_dir: /var/www/html
-        #command: npm run dev -- --host # Запускаем vite
+            - './frontend:/app'
+            - './certs:/app/certs'
+            - '/app/node_modules'
+        working_dir: /app
+        stdin_open: true
+        tty: true
         networks:
             - pwa-network
 
