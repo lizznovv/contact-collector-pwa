@@ -17,7 +17,26 @@ class LeadController extends Controller
     }
     public function store(LeadRequest $request)
     {
+
         $validated = $request->validated();
+
+
+        $existing = Lead::where('phone', $validated['phone'])
+            ->where('email', $validated['email'])
+            ->first();
+
+
+        if ($existing) {
+            return response()->json([
+                'duplicate_found' => true,
+                'message'         => 'Заявка с таким телефоном и email уже существует.',
+                'existing_lead'   => $existing,
+                'actions'         => [
+                    'update'           => "/api/leads/{$existing->id}",
+                    'cancel' => 'Cancel',
+                ],
+            ], 409);
+        }
 
         try {
             $lead = Lead::create([
@@ -29,6 +48,10 @@ class LeadController extends Controller
                 'company' => $validated['company'] ?? null,
                 'position' => $validated['position'] ?? null,
             ]);
+
+            if (!empty($validated['product'])) {
+                $lead->products()->attach($validated['product']);
+            }
         }
         catch (\Exception $exception)
         {
@@ -36,12 +59,15 @@ class LeadController extends Controller
             throw $exception;
         }
         return response()->json([
+            'duplicate_found' => false,
             'status' => 'success',
             'id' => $lead->id,
             'message' => 'Lead created successfully',
             'lead' => $lead
         ], 201);
     }
+
+
     public function show($id)
     {
         $lead = Lead::findOrFail($id);

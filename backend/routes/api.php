@@ -13,12 +13,14 @@ Route::post('/login', [UserController::class, 'login'])
 
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{id}', [UserController::class, 'show']);
+Route::post('/leads', [LeadController::class, 'store']);
 
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
+
 
 Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(function () {
 
@@ -31,7 +33,7 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
         Route::prefix('leads')->group(function () {
 
             Route::get('/', [LeadController::class, 'index']);
-            Route::post('/', [LeadController::class, 'store']);
+            Route::post('/', [LeadController::class, 'store'])->middleware('idempotency');
             Route::get('/{id}', [LeadController::class, 'show']);
             Route::put('/{id}', [LeadController::class, 'update']);
             Route::delete('/{id}', [LeadController::class, 'destroy']);
@@ -49,13 +51,13 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
             });
 
             Route::prefix('events')->group(function () {
-                Route::post('/', [EventController::class, 'store']);
+                Route::post('/', [EventController::class, 'store'])->middleware('idempotency');
                 Route::put('/{id}', [EventController::class, 'update']);
                 Route::delete('/{id}', [EventController::class, 'destroy']);
             });
 
             Route::prefix('products')->group(function () {
-                Route::post('/', [ProductController::class, 'store']);
+                Route::post('/', [ProductController::class, 'store'])->middleware('idempotency');
                 Route::put('/{id}', [ProductController::class, 'update']);
                 Route::delete('/{id}', [ProductController::class, 'destroy']);
             });

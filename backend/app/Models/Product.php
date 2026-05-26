@@ -16,6 +16,6 @@ class Product extends Model
 
     public function leads()
     {
-        return $this->belongsToMany(Lead::class);
+        return $this->belongsToMany(Lead::class, 'lead_products');
     }
 }

@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'xss.protect' => \App\Http\Middleware\XssSanitizerMiddleware::class,
+            'idempotency' => \App\Http\Middleware\IdempotencyKeyMiddleware::class,
         ]);
 
         $middleware->redirectGuestsTo(function (){
