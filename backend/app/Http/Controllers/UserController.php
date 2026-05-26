@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginFormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -28,10 +29,19 @@ class UserController extends Controller
             ];
         }
         if (!$token = Auth::guard('api')->attempt($credentials)) {
+
+            AuditLogger::log('LOGIN_FAILED', 'error', payload: [
+                'login' => $validated['login'],
+            ]);
+
             return response()->json([
                 'message' => 'Неправильный логин или пароль'
             ], 401);
         }
+
+        AuditLogger::log('LOGIN_SUCCESS', payload: [
+            'login' => $validated['login'],
+        ]);
 
         return response()->json([
             'access_token' => $token,
@@ -43,6 +53,9 @@ class UserController extends Controller
 
     public function logout()
     {
+
+        AuditLogger::log('LOGOUT');
+
         Auth::guard('api')->logout();
 
         return response()->json([

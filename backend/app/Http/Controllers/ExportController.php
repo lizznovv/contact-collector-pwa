@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 
 class ExportController extends Controller
@@ -26,7 +27,13 @@ class ExportController extends Controller
 
         $leads = $query->get();
 
-        $format = $request->input('format', 'xlsx'); // csv или xlsx
+        $format = $request->input('format', 'xlsx');
+
+        AuditLogger::log('EXPORT', payload: [
+            'format'  => $format,
+            'count'   => $leads->count(),
+            'filters' => $request->only('status', 'event_id', 'from', 'to'),
+        ]);
 
         return $format === 'xlsx'
             ? $this->exportXlsx($leads)

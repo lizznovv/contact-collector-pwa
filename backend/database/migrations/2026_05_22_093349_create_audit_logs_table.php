@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('entity_type')->nullable()->index();
             $table->unsignedBigInteger('entity_id')->nullable()->index();
             $table->json('payload')->nullable();
+            $table->string('ip_address')->nullable();
+            $table->string('status');
+            $table->text('error_message')->nullable();
             $table->timestamp('created_at')->useCurrent()->index();
         });
     }

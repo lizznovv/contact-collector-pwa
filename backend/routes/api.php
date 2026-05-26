@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\HealthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SyncController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +24,7 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
 
+Route::get('/health', [HealthController::class, 'index']);
 
 Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(function () {
 
@@ -63,6 +66,11 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
                 Route::post('/', [ProductController::class, 'store'])->middleware('idempotency');
                 Route::put('/{id}', [ProductController::class, 'update']);
                 Route::delete('/{id}', [ProductController::class, 'destroy']);
+            });
+
+            Route::prefix('audit-logs')->group(function () {
+                Route::get('/',     [AuditLogController::class, 'index']);
+                Route::get('/{id}', [AuditLogController::class, 'show']);
             });
 
             Route::get('/export/leads', [ExportController::class, 'leads']);

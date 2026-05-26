@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Http\Requests\EventRequest;
@@ -22,9 +23,15 @@ class EventController extends Controller
 
         try {
             $event = Event::create($validated);
+
+            AuditLogger::log(
+                'CREATE_EVENT',
+                entityType: 'Event',
+                entityId: $event->id,
+            );
         }
-        catch (\Exception $e) {
-            Log::error($e->getMessage());
+        catch (\Exception $exception) {
+            AuditLogger::log('CREATE_EVENT', 'error', errorMessage: $exception->getMessage());
 
             return response()->json([
                 'message' => 'Ошибка добавления события.'
@@ -50,7 +57,18 @@ class EventController extends Controller
     {
         $validated = $request->validated();
         $event = Event::findOrFail($id);
+        $old = $event->only(['name', 'description', 'event_date', 'is_active',]);
         $event->update($validated);
+
+        AuditLogger::log(
+            'UPDATE_EVENT',
+            entityType: 'Event',
+            entityId: $event->id,
+            payload: [
+                'before' => $old,
+                'after'  => $event->only(['name', 'description', 'event_date', 'is_active',]),
+            ]
+        );
 
         return response()->json([
             'message' => 'Event updated successfully',
@@ -62,6 +80,13 @@ class EventController extends Controller
     public function destroy($id)
     {
         $event = Event::findOrFail($id);
+
+        AuditLogger::log(
+            'DELETE_EVENT',
+            entityType: 'Event',
+            entityId: $event->id,
+        );
+
         $event->delete();
 
         return response()->json([
