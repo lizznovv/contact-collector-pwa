@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SyncController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ManagerController;
@@ -38,6 +39,8 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
             Route::put('/{id}', [LeadController::class, 'update']);
             Route::delete('/{id}', [LeadController::class, 'destroy']);
         });
+
+        Route::post('/sync', [SyncController::class, 'sync'])->middleware('idempotency');
 
         Route::middleware('role:admin')->group(function () {
 
