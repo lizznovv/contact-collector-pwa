@@ -20,6 +20,25 @@ services:
         depends_on:
             - mariadb
 
+    pwa-frontend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+              WWWGROUP: '${WWWGROUP}'
+        image: pwa-backend # Используем тот же образ
+        ports:
+          - "5173:5173"
+        environment:
+            WWWUSER: '${WWWUSER}'
+        volumes:
+            - './frontend:/var/www/html'
+            - './certs:/var/www/html/certs'
+        working_dir: /var/www/html
+        #command: npm run dev -- --host # Запускаем vite
+        networks:
+            - pwa-network
+
     mariadb:
         image: 'mariadb:10.6'
         restart: on-failure
