@@ -53,6 +53,14 @@ export default defineConfig({
             key: fs.readFileSync('./certs/localhost+3-key.pem'),
             cert: fs.readFileSync('./certs/localhost+3.pem'),
         },
+        proxy: {
+            '/api': {
+                target: 'http://pwa-backend:8080',
+                changeOrigin: true,
+                secure: false,
+                rewrite: (path) => path.replace(/^\/api/, '/api')
+            }
+        },
         // Настройка для WSL2, чтобы HMR (Hot Module Replacement) работал стабильно
         watch: {
             usePolling: true

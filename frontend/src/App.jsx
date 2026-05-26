@@ -3,9 +3,40 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import { saveDraft, getAllDrafts, cleanupOldDrafts } from './services/draftsService';
+import { useEffect } from 'react'
+import { addPendingLead, getAllPendingLeads } from "./services/pendingLeadsService.js";
 
 function App() {
   const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    cleanupOldDrafts();
+  }, []);
+
+  useEffect(() => {
+    async function testDB() {
+
+      await saveDraft({
+        fullName: 'Ivan',
+        phone: '+799999999'
+      });
+      const drafts = await getAllDrafts();
+
+      await addPendingLead({
+        fullName: 'Ivan',
+        phone: '+799999999'
+      });
+      const pending_leaders = await getAllPendingLeads();
+
+      console.log(drafts);
+      console.log(pending_leaders);
+
+    }
+
+    testDB();
+
+  }, []);
 
   return (
     <>
