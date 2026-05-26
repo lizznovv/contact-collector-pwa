@@ -15,6 +15,26 @@ class LeadRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->phone) {
+            $this->merge([
+                'phone' => $this->normalizePhone($this->phone),
+            ]);
+        }
+    }
+
+    private function normalizePhone(string $phone): string
+    {
+        $digits = preg_replace('/\D/', '', $phone);
+
+        if (strlen($digits) === 11 && str_starts_with($digits, '8')) {
+            $digits = '7' . substr($digits, 1);
+        }
+
+        return '+' . $digits;
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,11 +44,12 @@ class LeadRequest extends FormRequest
     {
         return [
             'full_name' => 'required|string|max:255',
-            'phone' => 'required|regex:/^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/',
+            'phone'       => ['required', 'regex:/^\+7\d{10}$/'],
             'email' => 'required|email',
             'event_id' => 'required|integer|exists:events,id',
             'company' => 'required|string|max:255',
             'position' => 'required|string|max:255',
+            'product' => 'nullable|array',
         ];
     }
 

@@ -41,7 +41,7 @@ class XssSanitizerMiddleware
             }
             elseif(is_string($value))
             {
-                $data[$key] = Purifier::clean($value);
+                $data[$key] = strip_tags($value);
             }
         }
 
