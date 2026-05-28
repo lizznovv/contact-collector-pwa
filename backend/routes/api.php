@@ -15,17 +15,6 @@ use Illuminate\Http\Request;
 Route::post('/login', [UserController::class, 'login'])
     ->middleware('throttle:auth');
 
-Route::get('/users', [UserController::class, 'index']);
-Route::get('/users/{id}', [UserController::class, 'show']);
-
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
-
-Route::get('/events', [EventController::class, 'index']);
-Route::get('/events/{id}', [EventController::class, 'show']);
-
-Route::get('/health', [HealthController::class, 'index']);
-
 Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(function () {
 
     Route::get('/user', function (Request $request) {
@@ -42,6 +31,12 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
             Route::put('/{id}', [LeadController::class, 'update']);
             Route::delete('/{id}', [LeadController::class, 'destroy']);
         });
+
+        Route::get('/products', [ProductController::class, 'index']);
+        Route::get('/products/{id}', [ProductController::class, 'show']);
+
+        Route::get('/events', [EventController::class, 'index']);
+        Route::get('/events/{id}', [EventController::class, 'show']);
 
         Route::post('/sync', [SyncController::class, 'sync'])->middleware('idempotency');
 
@@ -72,6 +67,8 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
                 Route::get('/',     [AuditLogController::class, 'index']);
                 Route::get('/{id}', [AuditLogController::class, 'show']);
             });
+
+            Route::get('/health', [HealthController::class, 'index']);
 
             Route::get('/export/leads', [ExportController::class, 'leads']);
         });
