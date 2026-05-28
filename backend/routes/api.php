@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 Route::post('/login', [UserController::class, 'login'])
     ->middleware('throttle:auth');
 
+Route::post('/refresh', [UserController::class, 'refresh']);
+
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{id}', [UserController::class, 'show']);
 
@@ -77,7 +79,6 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
         });
     });
 
-    Route::post('/refresh', [UserController::class, 'refresh']);
     Route::post('/logout', [UserController::class, 'logout']);
 
 });
