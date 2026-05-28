@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { login } from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function LoginPage() {
+    const { login } = useAuth(); // берем функцию из контекста
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -13,13 +17,12 @@ function LoginPage() {
                 login: email,
                 password,
             });
-            console.log(response.data);
+            console.log(response);
+            navigate('/dashboard');
         }
         catch (error) {
             console.error(error);
         }
-
-        console.log('submit');
     }
 
     return (

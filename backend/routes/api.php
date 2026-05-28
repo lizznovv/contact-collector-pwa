@@ -74,7 +74,6 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
         });
     });
 
-    Route::post('/refresh', [UserController::class, 'refresh']);
     Route::post('/logout', [UserController::class, 'logout']);
 
 });
