@@ -15,11 +15,15 @@ use Illuminate\Http\Request;
 Route::post('/login', [UserController::class, 'login'])
     ->middleware('throttle:auth');
 
+Route::post('/refresh', [UserController::class, 'refresh']);
+Route::get('/health', [HealthController::class, 'index']);
+
 Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(function () {
 
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/logout', [UserController::class, 'logout']);
 
     Route::middleware('role:admin,manager')->group(function () {
 
@@ -68,13 +72,9 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
                 Route::get('/{id}', [AuditLogController::class, 'show']);
             });
 
-            Route::get('/health', [HealthController::class, 'index']);
-
             Route::get('/export/leads', [ExportController::class, 'leads']);
         });
     });
-
-    Route::post('/logout', [UserController::class, 'logout']);
 
 });
 
