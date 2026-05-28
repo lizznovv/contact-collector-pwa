@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { runStorageCleanup  } from './services/draftsService';
 import './index.css'
 import App from './App.jsx'
 
@@ -8,3 +9,8 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
+runStorageCleanup();
+
+setInterval(() => {
+    runStorageCleanup();
+}, 24 * 60 * 60 * 1000);

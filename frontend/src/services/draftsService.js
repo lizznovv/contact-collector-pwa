@@ -13,7 +13,7 @@ export async function saveDraft(draft){
         updatedAt: Date.now()
     });
 }
-export async function getDraftById(draft) {
+export async function getDraftById(id) {
     const db = await dbPromise;
 
     return db.get('drafts', id);
@@ -40,4 +40,6 @@ export async function cleanupOldDrafts() {
         }
     }
 }
-
+export async function runStorageCleanup() {
+    await cleanupOldDrafts();
+}
