@@ -1,9 +1,11 @@
-import axios from 'axios';
+import api from '../api/axios';
+import { clearDrafts } from './draftsService';
 
 export async function login(data) {
-    return axios.post('/api/login', data);
+    return api.post('/login', data);
 }
 
 export async function logout() {
-    return axios.post('/api/logout');
+    await api.post('/logout');
+    await clearDrafts();
 }
