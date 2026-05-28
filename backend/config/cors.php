@@ -20,6 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        'https://localhost:5173',
         'https://localhost:5174',
     ], //прописать сюда потом наш фронтенд
 
