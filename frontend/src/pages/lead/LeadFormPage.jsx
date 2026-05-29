@@ -16,8 +16,8 @@ export default function LeadFormPage() {
         email: "",
         company: "",
         position: "",
-        event_ids: [],   // ← единое имя
-        product_ids: []  // ← единое имя
+        event_ids: [],
+        product_ids: []
     });
 
     const [events, setEvents] = useState([]);
@@ -70,7 +70,7 @@ export default function LeadFormPage() {
             full_name: validateRequired(form.full_name, "ФИО"),
             phone:     validatePhone(form.phone),
             email:     validateEmail(form.email),
-            event_ids: validateProduct(form.event_ids),   // или своя validateRequired для массива
+            event_ids: validateProduct(form.event_ids),
             product:   validateProduct(form.product_ids)
         };
         setErrors(newErrors);
@@ -85,6 +85,15 @@ export default function LeadFormPage() {
             setForm(prev => ({
                 ...prev,
                 phone: applyPhoneMask(value)
+            }));
+            return;
+        }
+
+        if (name === "full_name") {
+            const onlyLetters = value.replace(/[^a-zA-Zа-яА-ЯёЁ\s]/g, "");
+            setForm(prev => ({
+                ...prev,
+                full_name: onlyLetters
             }));
             return;
         }
@@ -136,8 +145,8 @@ export default function LeadFormPage() {
                 email:      form.email,
                 company:    form.company,
                 position:   form.position,
-                event_id:   form.event_ids[0],   // бэкенд ждёт одно число
-                product:    form.product_ids     // бэкенд ждёт массив
+                event_id:   form.event_ids[0],
+                product:    form.product_ids
             };
 
             await axios.post("/api/leads", payload, {
@@ -149,7 +158,7 @@ export default function LeadFormPage() {
             });
 
             alert("Lead успешно создан");
-            window.location.href = "/fe-05";
+            window.location.href = "/dashboard";
         } catch (error) {
             if (error.response?.status === 409) {
                 const data = error.response.data;
@@ -157,7 +166,6 @@ export default function LeadFormPage() {
                     `Заявка с таким телефоном и email уже существует.\nОбновить существующую заявку?`
                 );
                 if (confirmed) {
-                    // Обновляем существующий лид
                     const token = localStorage.getItem("access_token");
                     await axios.put(`/api/leads/${data.existing_lead.id}`, payload, {
                         headers: {
@@ -167,7 +175,7 @@ export default function LeadFormPage() {
                         }
                     });
                     alert("Заявка обновлена");
-                    window.location.href = "/fe-05";
+                    window.location.href = "/dashboard";
                 }
                 return;
             }
@@ -244,7 +252,7 @@ export default function LeadFormPage() {
                 <select
                     multiple
                     name="event_ids"
-                    value={form.event_ids}          // ← исправлено
+                    value={form.event_ids}
                     onChange={handleEventsChange}
                     style={{
                         width: "250px",
@@ -266,7 +274,7 @@ export default function LeadFormPage() {
             <div>
                 <select
                     multiple
-                    name="product_ids"             // ← для консистентности
+                    name="product_ids"
                     value={form.product_ids}
                     onChange={handleProductsChange}
                     style={{
