@@ -11,13 +11,9 @@ export async function addPendingLead(data) {
 
     return db.put('pending_leads', {
         ...data,
-
         syncStatus: 'pending',
-
         retryCount: 0,
-
         idempotencyKey: crypto.randomUUID(),
-
         createdAt: Date.now(),
         updatedAt: Date.now()
     });
@@ -58,6 +54,7 @@ export async function incrementRetry(id) {
     if (!lead) return;
 
     lead.retryCount += 1;
+    lead.syncStatus = 'pending';
     lead.updatedAt = Date.now();
 
     return db.put('pending_leads', lead);

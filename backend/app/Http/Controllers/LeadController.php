@@ -12,7 +12,8 @@ class LeadController extends Controller
 {
     public function index()
     {
-        $leads = Lead::all();
+        $leads = Lead::where('user_id', auth()->id())
+            ->get();
 
         return response()->json(['leads' => $leads]);
     }
