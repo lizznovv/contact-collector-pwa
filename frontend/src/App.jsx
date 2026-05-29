@@ -3,6 +3,8 @@ import { AuthProvider } from './context/AuthContext';
 import LoginPage from './pages/auth/LoginPage';
 import LeadDashboard from './pages/lead/LeadDashboard';
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+import LeadFormPage from "./pages/lead/LeadFormPage.jsx";
+
 import LeadFormPage from './pages/lead/LeadFormPage';
 import { useEffect } from 'react';
 import { syncPendingLeads } from './services/syncService';

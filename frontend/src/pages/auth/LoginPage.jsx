@@ -18,7 +18,7 @@ function LoginPage() {
                 password,
             });
             console.log(response);
-            navigate('/dashboard');
+            navigate('/leads');
         }
         catch (error) {
             console.error(error);
