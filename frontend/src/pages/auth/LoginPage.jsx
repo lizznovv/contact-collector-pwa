@@ -22,6 +22,11 @@ function LoginPage() {
         }
         catch (error) {
             console.error(error);
+            alert(
+                error.response?.data?.message ||
+                error.message ||
+                'Unknown error'
+            );
         }
     }
 

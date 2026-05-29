@@ -55,7 +55,7 @@ export default defineConfig({
         },
         proxy: {
             '/api': {
-                target: 'http://pwa-backend:8080',
+                target: 'https://localhost:443',
                 changeOrigin: true,
                 secure: false,
                 rewrite: (path) => path.replace(/^\/api/, '/api')
