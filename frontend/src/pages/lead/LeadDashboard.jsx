@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getLeads } from '../../services/leadService';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getAllPendingLeads } from '../../services/pendingLeadsService';
 
 function LeadDashboard() {
 
@@ -14,12 +15,28 @@ function LeadDashboard() {
     }, []);
 
     async function loadLeads() {
+        const localLeads = await getAllPendingLeads();
+        const normalizedLocalLeads = localLeads.map(lead => ({
+            ...lead,
+            status: lead.syncStatus,
+            source: 'local'
+        }));
+
         try {
             const data = await getLeads();
-            setLeads(data.leads);
+            const normalizedServerLeads = data.leads.map(lead => ({
+                ...lead,
+                source: 'server'
+            }));
+
+            setLeads([
+                ...normalizedServerLeads,
+                ...normalizedLocalLeads
+            ]);
         }
         catch (error) {
-            console.error(error);
+            console.error('Server unavailable:', error);
+            setLeads(normalizedLocalLeads);
         }
     }
 
@@ -45,19 +62,21 @@ function LeadDashboard() {
                     <th>ID</th>
                     <th>Name</th>
                     <th>Company</th>
+                    <th>Status</th>
                 </tr>
                 </thead>
 
                 <tbody>
                 {leads.map((lead) => (
                     <tr
-                        key={lead.id}
+                        key={`${lead.source}-${lead.id}`}
                         onClick={() => navigate(`/leads/${lead.id}`)}
                         style={{ cursor: 'pointer' }}
                     >
                         <td>{lead.id}</td>
                         <td>{lead.full_name}</td>
                         <td>{lead.company}</td>
+                        <td>{lead.status}</td>
                     </tr>
                 ))}
                 </tbody>

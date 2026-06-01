@@ -17,10 +17,13 @@ export async function login(credentials) {
 export async function logout() {
     const refreshToken = localStorage.getItem('refresh_token');
 
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+
+    clearDrafts();
     try {
-        await api.post('/logout',{
-            refresh_token: refreshToken,
-        });
+        await api.post('/logout',{refresh_token: refreshToken});
     }
     finally {
         localStorage.removeItem('access_token');

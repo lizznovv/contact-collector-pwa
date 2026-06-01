@@ -7,6 +7,10 @@ import {
     validateProduct,
     applyPhoneMask
 } from "../../utils/validators";
+import { addPendingLead } from "../../services/pendingLeadsService";
+import { syncPendingLeads } from "../../services/syncService";
+import { isServerAvailable } from "../../services/networkService";
+import {getCachedEvents, getCachedProducts} from '../../services/referenceDataService';
 
 export default function LeadFormPage() {
 
@@ -23,38 +27,19 @@ export default function LeadFormPage() {
     const [events, setEvents] = useState([]);
     const [products, setProducts] = useState([]);
     const [errors, setErrors] = useState({});
-
-    useEffect(() => {
-        loadData();
-    }, []);
-
     const loadData = async () => {
         try {
-            const token = localStorage.getItem("access_token");
+            const cachedEvents = await getCachedEvents();
+            const cachedProducts = await getCachedProducts();
 
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json"
-                }
-            };
+            setEvents(cachedEvents);
+            setProducts(cachedProducts);
 
-            const eventsRes = await axios.get(
-                "/api/events",
-                config
-            );
+            console.log("EVENTS:", cachedEvents);
+            console.log("PRODUCTS:", cachedProducts);
 
-            const productsRes = await axios.get(
-                "/api/products",
-                config
-            );
-
-            setEvents(eventsRes.data.events || []);
-            setProducts(productsRes.data.products || []);
-            console.log("EVENTS:", eventsRes.data);
-            console.log("PRODUCTS:", productsRes.data);
-
-        } catch (error) {
+        }
+        catch (error) {
             console.error("Ошибка загрузки данных", error);
 
             if (error.response?.status === 401) {
@@ -64,6 +49,10 @@ export default function LeadFormPage() {
             }
         }
     };
+
+    useEffect(() => {
+        loadData();
+    }, []);
 
     const validateForm = () => {
         const newErrors = {
@@ -128,7 +117,6 @@ export default function LeadFormPage() {
         }));
     };
 
-
     const handleSubmit = async e => {
 
         e.preventDefault();
@@ -136,30 +124,28 @@ export default function LeadFormPage() {
         if (!validateForm()) return;
         console.log("Отправляем:", JSON.stringify(form, null, 2));
 
+        const payload = {
+            full_name:  form.full_name,
+            phone:      form.phone,
+            email:      form.email,
+            company:    form.company,
+            position:   form.position,
+            event_id:   form.event_ids[0],
+            product:    form.product_ids
+        };
+
         try {
-            const token = localStorage.getItem("access_token");
 
-            const payload = {
-                full_name:  form.full_name,
-                phone:      form.phone,
-                email:      form.email,
-                company:    form.company,
-                position:   form.position,
-                event_id:   form.event_ids[0],
-                product:    form.product_ids
-            };
-
-            await axios.post("/api/leads", payload, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json",
-                    "Idempotency-Key": crypto.randomUUID()
-                }
-            });
+            await addPendingLead(payload);
+            const available = await isServerAvailable();
+            if (available) {
+                await syncPendingLeads();
+            }
 
             alert("Lead успешно создан");
             window.location.href = "/dashboard";
-        } catch (error) {
+        }
+        catch (error) {
             if (error.response?.status === 409) {
                 const data = error.response.data;
                 const confirmed = window.confirm(
@@ -294,7 +280,7 @@ export default function LeadFormPage() {
                 {errors.product && <p>{errors.product}</p>}
             </div>
 
-            <button type="button" onClick={handleSubmit}>Save</button>
+            <button type="submit" disabled={!isFormValid}>Save</button>
         </form>
     );
 }

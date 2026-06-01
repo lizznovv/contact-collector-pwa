@@ -22,6 +22,8 @@ return [
     'allowed_origins' => [
         'https://localhost:5173',
         'https://localhost:5174',
+        'https://localhost:4173',
+
     ], //прописать сюда потом наш фронтенд
 
     'allowed_origins_patterns' => [],

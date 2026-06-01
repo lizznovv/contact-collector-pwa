@@ -1,6 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from 'react';
 import * as authService from '../services/authService';
+import { syncReferenceData } from '../services/referenceDataService';
+import { syncPendingLeads } from '../services/syncService';
 
 const AuthContext = createContext(null);
 
@@ -18,12 +20,17 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         const data = await authService.login(credentials);
+
         setUser(data.user);
+
+        await syncReferenceData();
+        await syncPendingLeads();
+
         return data;
     };
 
     const logout = async () => {
-        await authService.logout();
+        authService.logout();
         setUser(null);
     };
 
