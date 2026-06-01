@@ -43,17 +43,15 @@ class SyncController extends Controller
 
                     $lead->update(['status' => 'synced']);
 
-                    DB::table('audit_logs')->insert([
-                        'user_id'     => auth()->id(),
-                        'action_type' => 'sync',
-                        'entity_type' => 'lead',
-                        'entity_id'   => $lead->id,
-                        'payload'     => json_encode([
+                    AuditLogger::log(
+                        actionType: 'sync',
+                        entityType: 'lead',
+                        entityId: $lead->id,
+                        payload: [
                             'previous_status' => $previousStatus,
                             'new_status'      => 'synced',
-                        ]),
-                        'created_at'  => now(),
-                    ]);
+                        ]
+                    );
                 });
 
                 $results[] = [

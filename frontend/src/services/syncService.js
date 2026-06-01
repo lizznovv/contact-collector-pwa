@@ -1,17 +1,15 @@
-import { createLead } from './leadService';
 import {
     getPendingLeadsForSync,
     updateLeadStatus,
     deletePendingLead,
     incrementRetry
 } from './pendingLeadsService';
+import { createLead, syncLead } from './leadService';
 
 let isSyncing = false;
 export async function syncPendingLeads() {
 
-    if (isSyncing) {
-        return;
-    }
+    if (isSyncing) return;
     isSyncing = true;
 
     try {
@@ -28,23 +26,37 @@ export async function syncPendingLeads() {
 
             try {
                 await updateLeadStatus(lead.id, 'syncing');
-                await createLead(lead);
+                const payload = { ...lead };
+                delete payload.syncStatus;
+                delete payload.retryCount;
+                delete payload.updatedAt;
+                delete payload.createdAt;
+
+                const result = await createLead(payload, lead.idempotencyKey);
+
+                await syncLead(result.id);
                 await deletePendingLead(lead.id);
 
                 console.log(`Lead ${lead.id} synced`);
             }
             catch (error) {
+                console.log(error.response?.data);
 
-                console.error(
-                    `Lead ${lead.id} sync failed`,
-                    error
-                );
+                if (error.response && error.response.status === 409) {
+                    console.warn(`Lead ${lead.id} already exists on server, removing from queue`);
+                    await deletePendingLead(lead.id);
+                    continue;
+                }
+                if (error.response && error.response.status === 400) {
+                    console.error('Validation error, sync stopped for this lead', error.response.data);
+                    await updateLeadStatus(lead.id, 'error');
+                    continue;
+                }
+
+                console.error(`Lead ${lead.id} sync failed`, error);
 
                 await incrementRetry(lead.id);
-                await updateLeadStatus(
-                    lead.id,
-                    'pending'
-                );
+
             }
         }
     }

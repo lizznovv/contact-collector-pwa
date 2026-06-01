@@ -16,16 +16,6 @@ Route::post('/login', [UserController::class, 'login'])
     ->middleware('throttle:auth');
 
 Route::post('/refresh', [UserController::class, 'refresh']);
-
-Route::get('/users', [UserController::class, 'index']);
-Route::get('/users/{id}', [UserController::class, 'show']);
-
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
-
-Route::get('/events', [EventController::class, 'index']);
-Route::get('/events/{id}', [EventController::class, 'show']);
-
 Route::get('/health', [HealthController::class, 'index']);
 
 Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(function () {
@@ -33,6 +23,7 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/logout', [UserController::class, 'logout']);
 
     Route::middleware('role:admin,manager')->group(function () {
 
@@ -44,6 +35,12 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
             Route::put('/{id}', [LeadController::class, 'update']);
             Route::delete('/{id}', [LeadController::class, 'destroy']);
         });
+
+        Route::get('/products', [ProductController::class, 'index']);
+        Route::get('/products/{id}', [ProductController::class, 'show']);
+
+        Route::get('/events', [EventController::class, 'index']);
+        Route::get('/events/{id}', [EventController::class, 'show']);
 
         Route::post('/sync', [SyncController::class, 'sync'])->middleware('idempotency');
 
@@ -78,8 +75,6 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
             Route::get('/export/leads', [ExportController::class, 'leads']);
         });
     });
-
-    Route::post('/logout', [UserController::class, 'logout']);
 
 });
 

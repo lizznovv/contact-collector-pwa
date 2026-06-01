@@ -7,46 +7,29 @@ import LeadFormPage from './pages/lead/LeadFormPage';
 import { useEffect } from 'react';
 import { syncPendingLeads } from './services/syncService';
 import { isServerAvailable } from './services/networkService';
-import { addPendingLead } from './services/pendingLeadsService';
+import { syncReferenceData } from './services/referenceDataService';
+
 function App() {
 
     useEffect(() => {
-/*
-        async function createTestLead() {
-
-            await addPendingLead({
-                full_name: 'Test User',
-                phone: '+79999999999',
-                email: 'test@test.com',
-                company: 'Test Company',
-                position: 'Developer',
-                event_id: 1
-            });
-            console.log('Test lead created');
-        }
-
-        createTestLead();
-*/
         async function trySync() {
 
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
             const available = await isServerAvailable();
+
             if (available) {
+                await syncReferenceData();
                 await syncPendingLeads();
             }
         }
 
-        trySync();
-
-        window.addEventListener(
-            'online',
-            trySync
-        );
+        if (navigator.onLine) trySync();
+        window.addEventListener('online', trySync);
 
         return () => {
-            window.removeEventListener(
-                'online',
-                trySync
-            );
+            window.removeEventListener('online', trySync);
         };
     }, []);
 

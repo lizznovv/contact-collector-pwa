@@ -1,8 +1,8 @@
-import api from '../api/axios';
+import axios from 'axios';
 
 export async function isServerAvailable() {
     try {
-        await api.get('/health');
+        await axios.get('/api/health');
 
         return true;
     }

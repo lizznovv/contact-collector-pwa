@@ -19,14 +19,11 @@ class LeadController extends Controller
     }
     public function store(LeadRequest $request)
     {
-
         $validated = $request->validated();
-
 
         $existing = Lead::where('phone', $validated['phone'])
             ->where('email', $validated['email'])
             ->first();
-
 
         if ($existing) {
             return response()->json([

@@ -44,12 +44,13 @@ class LeadRequest extends FormRequest
     {
         return [
             'full_name' => 'required|string|max:255',
-            'phone'       => ['required', 'regex:/^\+7\d{10}$/'],
-            'email' => 'required|email',
-            'event_id' => 'required|integer|exists:events,id',
-            'company' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'product' => 'nullable|array',
+            'phone'     => ['required', 'regex:/^\+7\d{10}$/'],
+            'email'     => 'required|email',
+            'event_id'  => 'required|integer|exists:events,id',
+            'company'   => 'nullable|string|max:255',
+            'position'  => 'nullable|string|max:255',
+            'product'   => 'required|array',
+            'product.*' => 'integer|exists:products,id',
         ];
     }
 
