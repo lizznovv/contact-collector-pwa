@@ -165,6 +165,29 @@ export default function LeadFormPage() {
         }
     };
 
+    const handleDelete = async () => {
+        const confirmed = window.confirm("Вы уверены, что хотите удалить этого лида?");
+        if (!confirmed) return;
+
+        setSaving(true);
+        try {
+            const token = localStorage.getItem("access_token");
+            await axios.delete(`/api/leads/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json"
+                },
+            });
+            alert("Lead успешно удален");
+            window.location.href = "/dashboard";
+        } catch (error) {
+            console.error("Ошибка при удалении лида:", error.response?.data);
+            alert("Ошибка удаления: " + JSON.stringify(error.response?.data || error.message));
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const handleSubmit = async e => {
 
         e.preventDefault();
@@ -259,15 +282,25 @@ export default function LeadFormPage() {
                     {isEditRoute ? (isEditing ? "Редактирование заявки" : "Просмотр заявки") : "Новая заявка"}
                 </h2>
 
-                {/* Кнопка редактирования — только в режиме просмотра */}
                 {isEditRoute && !isEditing && (
-                    <button
-                        type="button"
-                        onClick={() => setIsEditing(true)}
-                        style={{ padding: "8px 20px", cursor: "pointer" }}
-                    >
-                        Редактировать
-                    </button>
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            style={{ padding: "8px 20px", cursor: "pointer" }}
+                        >
+                            Редактировать
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            disabled={saving}
+                            style={{ padding: "8px 20px", cursor: "pointer" }}
+                        >
+                            {saving ? "Удаление..." : "Удалить лид"}
+                        </button>
+                    </>
+
                 )}
             </div>
 
