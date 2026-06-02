@@ -49,7 +49,7 @@ function LeadDashboard() {
         <div>
             <h1>My Leads</h1>
 
-            <button onClick={() => navigate('/leads')}>
+            <button onClick={() => navigate('/leads/new')}>
                 Create Lead
             </button>
             <button onClick={handleLogout}>

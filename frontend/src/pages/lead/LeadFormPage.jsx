@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
     validateRequired,
@@ -13,6 +14,9 @@ import { isServerAvailable } from "../../services/networkService";
 import {getCachedEvents, getCachedProducts} from '../../services/referenceDataService';
 
 export default function LeadFormPage() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const isEditRoute = Boolean(id);
 
     const [form, setForm] = useState({
         full_name: "",
@@ -24,35 +28,69 @@ export default function LeadFormPage() {
         product_ids: []
     });
 
+    const [originalForm, setOriginalForm] = useState({
+            full_name: "",
+            phone: "",
+            email: "",
+            company: "",
+            position: "",
+            event_ids: [],
+            product_ids: []
+        }
+    );
+
     const [events, setEvents] = useState([]);
     const [products, setProducts] = useState([]);
     const [errors, setErrors] = useState({});
-    const loadData = async () => {
-        try {
-            const cachedEvents = await getCachedEvents();
-            const cachedProducts = await getCachedProducts();
+    const [isEditing, setIsEditing] = useState(!isEditRoute);
+    const [loading, setLoading] = useState(isEditRoute);
+    const [saving, setSaving] = useState(false);
 
-            setEvents(cachedEvents);
-            setProducts(cachedProducts);
-
-            console.log("EVENTS:", cachedEvents);
-            console.log("PRODUCTS:", cachedProducts);
-
-        }
-        catch (error) {
-            console.error("Ошибка загрузки данных", error);
-
-            if (error.response?.status === 401) {
-                alert("Сессия истекла. Войдите снова.");
-                localStorage.clear();
-                window.location.href = "/login";
-            }
-        }
-    };
 
     useEffect(() => {
-        loadData();
-    }, []);
+        const load = async () => {
+            try {
+                const [cachedEvents, cachedProducts] = await Promise.all([
+                    getCachedEvents(),
+                    getCachedProducts(),
+                ]);
+                setEvents(cachedEvents);
+                setProducts(cachedProducts);
+
+                if (isEditRoute) {
+                    const token = localStorage.getItem("access_token");
+                    const { data } = await axios.get(`/api/leads/${id}`, {
+                        headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+                    });
+
+                    const lead = data.lead ?? data;
+                    const filled = {
+                        full_name: lead.full_name ?? "",
+                        phone: lead.phone ?? "",
+                        email: lead.email ?? "",
+                        company: lead.company ?? "",
+                        position: lead.position ?? "",
+                        event_ids: lead.event_id ? [lead.event_id] : (lead.event_ids ?? []),
+                        product_ids: lead.products
+                            ? lead.products.map((p) => p.id ?? p)
+                            : (lead.product_ids ?? []),
+                    };
+                    setForm(filled);
+                    setOriginalForm(filled);
+                }
+            } catch (error) {
+                console.error("Ошибка загрузки данных", error);
+                if (error.response?.status === 401) {
+                    localStorage.clear();
+                    window.location.href = "/login";
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        load();
+    }, [id, isEditRoute]);
 
     const validateForm = () => {
         const newErrors = {
@@ -117,6 +155,39 @@ export default function LeadFormPage() {
         }));
     };
 
+    const handleCancel = () => {
+        if (isEditRoute) {
+            setForm(originalForm);
+            setErrors({});
+            setIsEditing(false);
+        } else {
+            navigate(-1);
+        }
+    };
+
+    const handleDelete = async () => {
+        const confirmed = window.confirm("Вы уверены, что хотите удалить этого лида?");
+        if (!confirmed) return;
+
+        setSaving(true);
+        try {
+            const token = localStorage.getItem("access_token");
+            await axios.delete(`/api/leads/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json"
+                },
+            });
+            alert("Lead успешно удален");
+            window.location.href = "/dashboard";
+        } catch (error) {
+            console.error("Ошибка при удалении лида:", error.response?.data);
+            alert("Ошибка удаления: " + JSON.stringify(error.response?.data || error.message));
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const handleSubmit = async e => {
 
         e.preventDefault();
@@ -134,16 +205,32 @@ export default function LeadFormPage() {
             product:    form.product_ids
         };
 
+        setSaving(true);
+
         try {
+            if (isEditRoute) {
+                const token = localStorage.getItem("access_token");
+                await axios.put(`/api/leads/${id}`, payload, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
+                        "Idempotency-Key": crypto.randomUUID(),
+                    },
+                });
+                alert("Lead успешно обновлен");
+                setOriginalForm(form);
+                setIsEditing(false);
+            } else {
 
-            await addPendingLead(payload);
-            const available = await isServerAvailable();
-            if (available) {
-                await syncPendingLeads();
+                await addPendingLead(payload);
+                const available = await isServerAvailable();
+                if (available) {
+                    await syncPendingLeads();
+                }
+
+                alert("Lead успешно создан");
+                window.location.href = "/dashboard";
             }
-
-            alert("Lead успешно создан");
-            window.location.href = "/dashboard";
         }
         catch (error) {
             if (error.response?.status === 409) {
@@ -167,6 +254,8 @@ export default function LeadFormPage() {
             }
             console.error("Ошибка:", error.response?.data);
             alert("Ошибка: " + JSON.stringify(error.response?.data));
+        } finally {
+        setSaving(false);
         }
     };
 
@@ -177,110 +266,178 @@ export default function LeadFormPage() {
         form.event_ids?.length > 0 &&
         form.product_ids?.length > 0;
 
+    if (loading) return <p>Загрузка...</p>;
+
+    const getEventName =
+        (eventId) => events.find(
+            (e) => e.id === eventId)?.name ?? eventId;
+    const getProductName =
+        (productId) => products.find(
+            (p) => p.id === productId)?.name ?? productId;
+
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Форма заявки</h2>
+        <div style={{ maxWidth: 600, margin: "0 auto", padding: "24px 16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+                <h2 style={{ margin: 0 }}>
+                    {isEditRoute ? (isEditing ? "Редактирование заявки" : "Просмотр заявки") : "Новая заявка"}
+                </h2>
 
-            <div>
-                <input
-                    type="text"
-                    name="full_name"
-                    placeholder="ФИО"
-                    value={form.full_name}
-                    onChange={handleChange}
-                />
-                {errors.full_name && <p>{errors.full_name}</p>}
+                {isEditRoute && !isEditing && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            style={{ padding: "8px 20px", cursor: "pointer" }}
+                        >
+                            Редактировать
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            disabled={saving}
+                            style={{ padding: "8px 20px", cursor: "pointer" }}
+                        >
+                            {saving ? "Удаление..." : "Удалить лид"}
+                        </button>
+                    </>
+
+                )}
             </div>
 
-            <div>
-                <input
-                    type="text"
-                    name="phone"
-                    placeholder="+7 (___) ___-__-__"
-                    value={form.phone}
-                    onChange={handleChange}
-                />
-                {errors.phone && <p>{errors.phone}</p>}
-            </div>
+            <form onSubmit={handleSubmit}>
+                <Field label="ФИО" error={errors.full_name}>
+                    <input
+                        type="text"
+                        name="full_name"
+                        placeholder="ФИО"
+                        value={form.full_name}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                    />
+                </Field>
 
-            <div>
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={form.email}
-                    onChange={handleChange}
-                />
-                {errors.email && <p>{errors.email}</p>}
-            </div>
+                <Field label="Телефон" error={errors.phone}>
+                    <input
+                        type="text"
+                        name="phone"
+                        placeholder="+7 (___) ___-__-__"
+                        value={form.phone}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                    />
+                </Field>
 
-            <div>
-                <input
-                    type="text"
-                    name="company"
-                    placeholder="Компания"
-                    value={form.company}
-                    onChange={handleChange}
-                />
-            </div>
+                <Field label="Email" error={errors.email}>
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value={form.email}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                    />
+                </Field>
 
-            <div>
-                <input
-                    type="text"
-                    name="position"
-                    placeholder="Должность (опционально)"
-                    value={form.position}
-                    onChange={handleChange}
-                />
-            </div>
+                <Field label="Компания">
+                    <input
+                        type="text"
+                        name="company"
+                        placeholder="Компания"
+                        value={form.company}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                    />
+                </Field>
 
-            <div>
-                <select
-                    multiple
-                    name="event_ids"
-                    value={form.event_ids}
-                    onChange={handleEventsChange}
-                    style={{
-                        width: "250px",
-                        minHeight: "120px",
-                        padding: "8px",
-                        fontSize: "16px"
-                    }}
-                >
-                    {events.map((event) => (
-                        <option key={event.id} value={event.id}>
-                            {event.name}
-                        </option>
-                    ))}
-                </select>
+                <Field label="Должность">
+                    <input
+                        type="text"
+                        name="position"
+                        placeholder="Должность (опционально)"
+                        value={form.position}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                    />
+                </Field>
 
-                {errors.event_ids && <p>{errors.event_ids}</p>}
-            </div>
+                <Field label="События" error={errors.event_ids}>
+                    {isEditing ? (
+                        <select
+                            multiple
+                            name="event_ids"
+                            value={form.event_ids}
+                            onChange={handleEventsChange}
+                            style={{ width: "100%", minHeight: 120, padding: 8 }}
+                        >
+                            {events.map((event) => (
+                                <option key={event.id} value={event.id}>
+                                    {event.name}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <p style={{ margin: 0 }}>
+                            {form.event_ids.length > 0
+                                ? form.event_ids.map(getEventName).join(", ")
+                                : "—"}
+                        </p>
+                    )}
+                </Field>
 
-            <div>
-                <select
-                    multiple
-                    name="product_ids"
-                    value={form.product_ids}
-                    onChange={handleProductsChange}
-                    style={{
-                        width: "250px",
-                        minHeight: "120px",
-                        padding: "8px",
-                        fontSize: "16px"
-                    }}
-                >
-                    {products.map((product) => (
-                        <option key={product.id} value={product.id}>
-                            {product.name}
-                        </option>
-                    ))}
-                </select>
+                <Field label="Продукты" error={errors.product}>
+                    {isEditing ? (
+                        <select
+                            multiple
+                            name="product_ids"
+                            value={form.product_ids}
+                            onChange={handleProductsChange}
+                            style={{ width: "100%", minHeight: 120, padding: 8 }}
+                        >
+                            {products.map((product) => (
+                                <option key={product.id} value={product.id}>
+                                    {product.name}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <p style={{ margin: 0 }}>
+                            {form.product_ids.length > 0
+                                ? form.product_ids.map(getProductName).join(", ")
+                                : "—"}
+                        </p>
+                    )}
+                </Field>
 
-                {errors.product && <p>{errors.product}</p>}
-            </div>
+                {/* Кнопки действий — только в режиме редактирования */}
+                {isEditing && (
+                    <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+                        <button
+                            type="submit"
+                            disabled={!isFormValid || saving}
+                            style={{ padding: "10px 24px", cursor: "pointer" }}
+                        >
+                            {saving ? "Сохранение..." : "Сохранить"}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleCancel}
+                            style={{ padding: "10px 24px", cursor: "pointer" }}
+                        >
+                            Отмена
+                        </button>
+                    </div>
+                )}
+            </form>
+        </div>
+    );
+}
 
-            <button type="submit" disabled={!isFormValid}>Save</button>
-        </form>
+function Field({ label, error, children }) {
+    return (
+        <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>{label}</label>
+            {children}
+            {error && <p style={{ color: "red", margin: "4px 0 0", fontSize: 13 }}>{error}</p>}
+        </div>
     );
 }

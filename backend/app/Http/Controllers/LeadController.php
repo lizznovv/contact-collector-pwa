@@ -77,6 +77,8 @@ class LeadController extends Controller
     public function show($id)
     {
         $lead = Lead::findOrFail($id);
+        $lead = Lead::with('products')->findOrFail($id);
+
 
         return response()->json(['lead' => $lead]);
     }
