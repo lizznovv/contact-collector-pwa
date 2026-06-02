@@ -7,7 +7,6 @@ export async function login(credentials) {
 
     if (data.access_token) {
         localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
     }
 
@@ -15,19 +14,15 @@ export async function login(credentials) {
 }
 
 export async function logout() {
-    const refreshToken = localStorage.getItem('refresh_token');
-
     localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
 
     clearDrafts();
     try {
-        await api.post('/logout',{refresh_token: refreshToken});
+        await api.post('/logout');
     }
     finally {
         localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
         clearDrafts();
     }

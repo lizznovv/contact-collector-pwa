@@ -32,6 +32,11 @@ export async function getPendingLeadsForSync() {
         'pending'
     );
 }
+export async function getPendingLeadById(id) {
+    const db = await dbPromise;
+
+    return db.get('pending_leads', Number(id));
+}
 export async function updateLeadStatus(id, status) {
     const db = await dbPromise;
     const lead = await db.get('pending_leads', id);
@@ -58,6 +63,15 @@ export async function incrementRetry(id) {
     lead.updatedAt = Date.now();
 
     return db.put('pending_leads', lead);
+}
+export async function resetRetry(id) {
+    const db = await dbPromise;
+    const lead = await db.get('pending_leads', id);
+
+    lead.retryCount = 0;
+    lead.syncStatus = 'pending';
+
+    await db.put('pending_leads', lead);
 }
 export async function deletePendingLead(id) {
     const db = await dbPromise;

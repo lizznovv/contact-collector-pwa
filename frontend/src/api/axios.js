@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
     baseURL: '/api',
-    // withCredentials: true,
+    withCredentials: true,
 });
 
 
@@ -27,19 +27,11 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const refreshToken = localStorage.getItem('refresh_token');
-
-                // запрос на обновление токена
-                const response = await axios.post('/api/refresh', {
-                    refresh_token: refreshToken
-                });
-
+                const response = await api.post('/refresh');
                 const newAccessToken = response.data.access_token;
-                const newRefreshToken = response.data.refresh_token;
 
-                // Сохраняем новые токены
+                // Сохраняем новый токен
                 localStorage.setItem('access_token', newAccessToken);
-                localStorage.setItem('refresh_token', newRefreshToken);
 
                 // обновляем заголовок в упавшем запросе и повторяем его
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -50,7 +42,6 @@ api.interceptors.response.use(
             catch (refreshError) {
                 // если даже refresh token не сработал — разлогиниваем
                 localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
                 localStorage.removeItem('user');
 
                 window.location.href = '/login';

@@ -72,6 +72,7 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
                 Route::get('/{id}', [AuditLogController::class, 'show']);
             });
 
+            Route::get('/admin/leads', [LeadController::class, 'adminIndex']);
             Route::get('/export/leads', [ExportController::class, 'leads']);
         });
     });

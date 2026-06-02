@@ -64,6 +64,10 @@ class ManagerController extends Controller
     {
         $validated = $request->validated();
 
+        if (empty($validated['password'])) {
+            unset($validated['password']);
+        }
+
         $manager = User::where('id', $id)
             ->where('role', 'manager')
             ->firstOrFail();
