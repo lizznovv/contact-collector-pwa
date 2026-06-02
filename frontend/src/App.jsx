@@ -57,17 +57,22 @@ function App() {
                     }
                     />
                     <Route
-                        path="/leads"
-                        element={<LeadFormPage />}
+                        path="/leads/new"
+                        element={
+                        <ProtectedRoute>
+                            <LeadFormPage />
+                        </ProtectedRoute>
+                        }
                     />
                     <Route
                         path="/leads/:id"
-                        element={
-                            <ProtectedRoute>
-                                <LeadFormPage   />
+                        element=
+                            {<ProtectedRoute>
+                                <LeadFormPage />
                             </ProtectedRoute>
                         }
                     />
+
                 </Routes>
             </BrowserRouter>
         </AuthProvider>
