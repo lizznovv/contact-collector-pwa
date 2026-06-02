@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { getLeads } from '../../services/leadService';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getAllPendingLeads } from '../../services/pendingLeadsService';
-import { syncSingleLead  } from '../../services/syncService';
+import { getAllPendingLeads, resetRetry } from '../../services/pendingLeadsService';
+import { syncSingleLead } from '../../services/syncService';
 
 function LeadDashboard() {
 
@@ -47,7 +47,8 @@ function LeadDashboard() {
     }
 
     async function handleRetry(lead) {
-        await syncSingleLead(lead);
+        await resetRetry(lead.id);
+        await syncSingleLead(lead, true);
         await loadLeads();
     }
 
@@ -84,7 +85,6 @@ function LeadDashboard() {
                         <td>{lead.full_name}</td>
                         <td>{lead.company}</td>
                         <td>{lead.status}</td>
-
                         <td>
                             {lead.status === 'error' && (
                                 <button

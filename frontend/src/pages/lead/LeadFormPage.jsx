@@ -8,7 +8,11 @@ import {
     validateProduct,
     applyPhoneMask
 } from "../../utils/validators";
-import { addPendingLead } from "../../services/pendingLeadsService";
+import {
+    addPendingLead,
+    getPendingLeadById,
+    deletePendingLead
+} from "../../services/pendingLeadsService";
 import { syncPendingLeads } from "../../services/syncService";
 import { isServerAvailable } from "../../services/networkService";
 import {getCachedEvents, getCachedProducts} from '../../services/referenceDataService';
@@ -45,7 +49,7 @@ export default function LeadFormPage() {
     const [isEditing, setIsEditing] = useState(!isEditRoute);
     const [loading, setLoading] = useState(isEditRoute);
     const [saving, setSaving] = useState(false);
-
+    const [leadSource, setLeadSource] = useState('server');
 
     useEffect(() => {
         const load = async () => {
@@ -58,31 +62,66 @@ export default function LeadFormPage() {
                 setProducts(cachedProducts.filter(product => product.is_active));
 
                 if (isEditRoute) {
-                    const token = localStorage.getItem("access_token");
-                    const { data } = await axios.get(`/api/leads/${id}`, {
-                        headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-                    });
 
-                    const lead = data.lead ?? data;
-                    const filled = {
-                        full_name: lead.full_name ?? "",
-                        phone: lead.phone ?? "",
-                        email: lead.email ?? "",
-                        company: lead.company ?? "",
-                        position: lead.position ?? "",
-                        event_ids: lead.event_id ? [lead.event_id] : (lead.event_ids ?? []),
-                        product_ids: lead.products
-                            ? lead.products.map((p) => p.id ?? p)
-                            : (lead.product_ids ?? []),
-                    };
-                    setForm(filled);
-                    setOriginalForm(filled);
-                }
-            } catch (error) {
-                console.error("Ошибка загрузки данных", error);
-                if (error.response?.status === 401) {
-                    localStorage.clear();
-                    window.location.href = "/login";
+                    try {
+
+                        const token = localStorage.getItem("access_token");
+
+                        const { data } = await axios.get(`/api/leads/${id}`, {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                Accept: "application/json"
+                            },
+                        });
+
+                        setLeadSource('server');
+
+                        const lead = data.lead ?? data;
+
+                        const filled = {
+                            full_name: lead.full_name ?? "",
+                            phone: lead.phone ?? "",
+                            email: lead.email ?? "",
+                            company: lead.company ?? "",
+                            position: lead.position ?? "",
+                            event_ids: lead.event_id
+                                ? [lead.event_id]
+                                : (lead.event_ids ?? []),
+                            product_ids: lead.products
+                                ? lead.products.map(p => p.id ?? p)
+                                : (lead.product_ids ?? []),
+                        };
+
+                        setForm(filled);
+                        setOriginalForm(filled);
+
+                    } catch (error) {
+
+                        if (error.response?.status === 404) {
+
+                            const localLead = await getPendingLeadById(id);
+
+                            if (localLead) {
+
+                                setLeadSource('local');
+
+                                const filled = {
+                                    full_name: localLead.full_name ?? "",
+                                    phone: localLead.phone ?? "",
+                                    email: localLead.email ?? "",
+                                    company: localLead.company ?? "",
+                                    position: localLead.position ?? "",
+                                    event_ids: [localLead.event_id],
+                                    product_ids: localLead.product ?? [],
+                                };
+
+                                setForm(filled);
+                                setOriginalForm(filled);
+                            }
+                        } else {
+                            throw error;
+                        }
+                    }
                 }
             } finally {
                 setLoading(false);
@@ -170,16 +209,22 @@ export default function LeadFormPage() {
 
         setSaving(true);
         try {
-            const token = localStorage.getItem("access_token");
-            await axios.delete(`/api/leads/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json"
-                },
-            });
+            if (leadSource === 'local') {
+                await deletePendingLead(id);
+            }
+            else {
+                const token = localStorage.getItem("access_token");
+                await axios.delete(`/api/leads/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json"
+                    }
+                });
+            }
             alert("Lead успешно удален");
             window.location.href = "/dashboard";
-        } catch (error) {
+        }
+        catch (error) {
             console.error("Ошибка при удалении лида:", error.response?.data);
             alert("Ошибка удаления: " + JSON.stringify(error.response?.data || error.message));
         } finally {

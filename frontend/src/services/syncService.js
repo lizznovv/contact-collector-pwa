@@ -8,9 +8,9 @@ import { createLead, syncLead } from './leadService';
 
 let isSyncing = false;
 
-export async function syncSingleLead(lead){
+export async function syncSingleLead(lead, force = false){
 
-    if (lead.retryCount >= 5) {
+    if (!force && lead.retryCount >= 5) {
         await updateLeadStatus(lead.id, 'error');
         return;
     }
