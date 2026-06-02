@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProductRequest extends FormRequest
+class LeadFilterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +23,11 @@ class ProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'is_active' => 'boolean',
+            'manager_id' => 'nullable|integer|exists:users,id',
+            'event_id'   => 'nullable|integer|exists:events,id',
+            'product_id' => 'nullable|integer|exists:products,id',
+            'date_from'  => 'nullable|date',
+            'date_to'    => 'nullable|date',
         ];
     }
 }

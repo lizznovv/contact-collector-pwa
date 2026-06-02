@@ -3,6 +3,7 @@ import { getLeads } from '../../services/leadService';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAllPendingLeads } from '../../services/pendingLeadsService';
+import { syncSingleLead  } from '../../services/syncService';
 
 function LeadDashboard() {
 
@@ -45,6 +46,11 @@ function LeadDashboard() {
         navigate('/login');
     }
 
+    async function handleRetry(lead) {
+        await syncSingleLead(lead);
+        await loadLeads();
+    }
+
     return (
         <div>
             <h1>My Leads</h1>
@@ -63,6 +69,7 @@ function LeadDashboard() {
                     <th>Name</th>
                     <th>Company</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
 
@@ -77,6 +84,19 @@ function LeadDashboard() {
                         <td>{lead.full_name}</td>
                         <td>{lead.company}</td>
                         <td>{lead.status}</td>
+
+                        <td>
+                            {lead.status === 'error' && (
+                                <button
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleRetry(lead);
+                                    }}
+                                >
+                                    Повторить
+                                </button>
+                            )}
+                        </td>
                     </tr>
                 ))}
                 </tbody>

@@ -55,7 +55,7 @@ export default function LeadFormPage() {
                     getCachedProducts(),
                 ]);
                 setEvents(cachedEvents);
-                setProducts(cachedProducts);
+                setProducts(cachedProducts.filter(product => product.is_active));
 
                 if (isEditRoute) {
                     const token = localStorage.getItem("access_token");
@@ -103,7 +103,6 @@ export default function LeadFormPage() {
         setErrors(newErrors);
         return !Object.values(newErrors).some(Boolean);
     };
-
 
     const handleChange = e => {
         const {name, value} = e.target;

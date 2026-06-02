@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LeadRequest;
+use App\Http\Requests\LeadFilterRequest;
 use App\Models\Lead;
 use App\Services\AuditLogger;
 use Illuminate\Contracts\Validation\Validator;
@@ -73,15 +74,14 @@ class LeadController extends Controller
         ], 201);
     }
 
-
     public function show($id)
     {
         $lead = Lead::findOrFail($id);
         $lead = Lead::with('products')->findOrFail($id);
 
-
         return response()->json(['lead' => $lead]);
     }
+
     public function update(LeadRequest $request, $id)
     {
         $validated = $request->validated();
@@ -134,6 +134,42 @@ class LeadController extends Controller
             'message' => 'Невалидные данные.',
             'errors' => $validator->errors()
         ], 400));
+    }
+
+    public function adminIndex(LeadFilterRequest $request)
+    {
+        $query = Lead::with([
+            'user',
+            'event',
+            'products'
+        ]);
+
+        if ($request->manager_id) {
+            $query->where('user_id', $request->manager_id);
+        }
+        if ($request->event_id) {
+            $query->where('event_id', $request->event_id);
+        }
+        if ($request->product_id) {
+
+            $query->whereHas('products',
+                function ($productQuery) use ($request) {
+                    $productQuery->where('products.id', $request->product_id);
+                }
+            );
+        }
+        if ($request->date_from) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->date_to) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $leads = $query->get();
+
+        return response()->json([
+            'leads' => $leads
+        ]);
     }
 
 }

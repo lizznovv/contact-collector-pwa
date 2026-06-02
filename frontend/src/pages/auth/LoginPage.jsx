@@ -3,24 +3,33 @@ import { useAuth } from '../../context/AuthContext';
 import { useState, useEffect } from 'react';
 
 function LoginPage() {
-    const { login, isAuthenticated } = useAuth(); // берем функцию из контекста
+    const { login, isAuthenticated, user } = useAuth(); // берем функцию из контекста
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (!isAuthenticated || !user) return;
+
+        if (user.role === 'admin') {
+            navigate('/admin');
+        } else {
             navigate('/dashboard');
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, user, navigate]);
 
     async function handleSubmit(e) {
         e.preventDefault();
 
         try {
-            await login({ login: email, password });
-            navigate('/dashboard');
+            const data = await login({ login: email, password });
+
+            if (data.user.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/dashboard');
+            }
         }
         catch (error) {
             if (!navigator.onLine) {

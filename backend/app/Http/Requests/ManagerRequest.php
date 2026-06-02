@@ -19,11 +19,18 @@ class ManagerRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:255',
-            'password' => 'required|string|min:6',
         ];
+
+        if ($this->isMethod('post')) {
+            $rules['password'] = 'required|string|min:6';
+        } else {
+            $rules['password'] = 'nullable|string|min:6';
+        }
+
+        return $rules;
     }
 }

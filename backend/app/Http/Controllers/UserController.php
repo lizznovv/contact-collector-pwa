@@ -56,16 +56,26 @@ class UserController extends Controller
 
         return response()->json([
             'access_token' => $token,
-            'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
             'expires_in' => config('jwt.ttl') * 60,
             'user' => Auth::guard('api')->user(),
-        ]);
+        ])
+            ->cookie(
+                'refresh_token',
+                $refreshToken,
+                60 * 24 * 30, // 30 дней
+                '/',
+                null,
+                true,  // Secure
+                true,  // HttpOnly
+                false,
+                'Strict'
+            );
     }
 
     public function logout(Request $request)
     {
-        $refreshTokenValue = $request->input('refresh_token');
+        $refreshTokenValue = $request->cookie('refresh_token');
         if (!$refreshTokenValue)
         {
             return response()->json(['message' => 'Refresh token required'], 400);
@@ -83,14 +93,14 @@ class UserController extends Controller
 
         Auth::guard('api')->logout();
 
-        return response()->json([
-            'message' => 'Successfully logged out'
-        ]);
+        return response()
+            ->json(['message' => 'Successfully logged out'])
+            ->withoutCookie('refresh_token');
     }
 
     public function refresh(Request $request)
     {
-        $refreshTokenValue = $request->input('refresh_token');
+        $refreshTokenValue = $request->cookie('refresh_token');
         if (!$refreshTokenValue)
         {
             return response()->json(['message' => 'Refresh token required'], 400);
@@ -115,10 +125,21 @@ class UserController extends Controller
             'expires_at' => Carbon::now()->addDays(30),
         ]);
 
-        return response()->json([
+        return response()
+            ->json([
             'access_token' => $newAccessToken,
-            'refresh_token' => $newRefreshToken,
             'token_type' => 'bearer',
-        ]);
+            ])
+            ->cookie(
+                'refresh_token',
+                $newRefreshToken,
+                60 * 24 * 30,
+                '/',
+                null,
+                true,
+                true,
+                false,
+                'Strict'
+            );
     }
 }
