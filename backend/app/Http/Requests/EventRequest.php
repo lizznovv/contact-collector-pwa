@@ -26,6 +26,7 @@ class EventRequest extends FormRequest
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
             'event_date'  => 'required|date',
+            'end_date'  => 'required|date',
             'is_active'   => 'boolean',
         ];
     }

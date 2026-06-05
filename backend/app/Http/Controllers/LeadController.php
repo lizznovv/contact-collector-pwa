@@ -169,11 +169,18 @@ class LeadController extends Controller
                 }
             );
         }
-        if ($request->date_from) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-        if ($request->date_to) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+        if ($request->date_from || $request->date_to) {
+
+            $query->whereHas('event', function ($eventQuery) use ($request) {
+
+                if ($request->date_from) {
+                    $eventQuery->whereDate('event_date', '>=', $request->date_from);
+                }
+
+                if ($request->date_to) {
+                    $eventQuery->whereDate('end_date', '<=', $request->date_to);
+                }
+            });
         }
 
         $leads = $query->get();

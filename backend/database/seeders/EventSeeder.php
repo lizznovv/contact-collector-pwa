@@ -17,11 +17,14 @@ class EventSeeder extends Seeder
         Event::create([
             'name' => 'Tech Conference',
             'event_date' => now(),
+            'end_date' => now()->addDay(),
+
         ]);
 
         Event::create([
             'name' => 'Business Forum',
             'event_date' => now(),
+            'end_date' => now()->addDay(),
         ]);
     }
 }
