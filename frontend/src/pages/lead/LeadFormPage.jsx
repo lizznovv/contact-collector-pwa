@@ -11,7 +11,8 @@ import {
 import {
     addPendingLead,
     getPendingLeadById,
-    deletePendingLead
+    deletePendingLead,
+    updatePendingLead
 } from "../../services/pendingLeadsService";
 import { syncPendingLeads } from "../../services/syncService";
 import { isServerAvailable } from "../../services/networkService";
@@ -28,7 +29,7 @@ export default function LeadFormPage() {
         email: "",
         company: "",
         position: "",
-        event_ids: [],
+        event_id: null,
         product_ids: []
     });
 
@@ -38,7 +39,7 @@ export default function LeadFormPage() {
             email: "",
             company: "",
             position: "",
-            event_ids: [],
+            event_id: null,
             product_ids: []
         }
     );
@@ -58,69 +59,89 @@ export default function LeadFormPage() {
                     getCachedEvents(),
                     getCachedProducts(),
                 ]);
-                setEvents(cachedEvents);
+                setEvents(cachedEvents.filter(event => event.is_active));
                 setProducts(cachedProducts.filter(product => product.is_active));
 
                 if (isEditRoute) {
+                    const online = await isServerAvailable();
 
-                    try {
-
-                        const token = localStorage.getItem("access_token");
-
-                        const { data } = await axios.get(`/api/leads/${id}`, {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                                Accept: "application/json"
-                            },
-                        });
-
-                        setLeadSource('server');
-
-                        const lead = data.lead ?? data;
-
-                        const filled = {
-                            full_name: lead.full_name ?? "",
-                            phone: lead.phone ?? "",
-                            email: lead.email ?? "",
-                            company: lead.company ?? "",
-                            position: lead.position ?? "",
-                            event_ids: lead.event_id
-                                ? [lead.event_id]
-                                : (lead.event_ids ?? []),
-                            product_ids: lead.products
-                                ? lead.products.map(p => p.id ?? p)
-                                : (lead.product_ids ?? []),
-                        };
-
-                        setForm(filled);
-                        setOriginalForm(filled);
-
-                    } catch (error) {
-
-                        if (error.response?.status === 404) {
-
-                            const localLead = await getPendingLeadById(id);
-
-                            if (localLead) {
-
-                                setLeadSource('local');
-
-                                const filled = {
-                                    full_name: localLead.full_name ?? "",
-                                    phone: localLead.phone ?? "",
-                                    email: localLead.email ?? "",
-                                    company: localLead.company ?? "",
-                                    position: localLead.position ?? "",
-                                    event_ids: [localLead.event_id],
-                                    product_ids: localLead.product ?? [],
-                                };
-
-                                setForm(filled);
-                                setOriginalForm(filled);
-                            }
+                    if (!online){
+                        const localLead = await getPendingLeadById(Number(id));
+                        if (localLead) {
+                            setLeadSource('local');
+                            const filled = {
+                                full_name: localLead.full_name ?? "",
+                                phone: localLead.phone ?? "",
+                                email: localLead.email ?? "",
+                                company: localLead.company ?? "",
+                                position: localLead.position ?? "",
+                                event_id: localLead.event_id ?? null,
+                                product_ids: localLead.product ?? [],
+                            };
+                            setForm(filled);
+                            setOriginalForm(filled);
                         } else {
-                            throw error;
+                            alert("Заявка не найдена локально");
+                            navigate(-1);
                         }
+                    } else{
+                        try {
+                            const token = localStorage.getItem("access_token");
+
+                            const { data } = await axios.get(`/api/leads/${id}`, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    Accept: "application/json"
+                                },
+                            });
+
+                            setLeadSource('server');
+
+                            const lead = data.lead ?? data;
+
+                            const filled = {
+                                full_name: lead.full_name ?? "",
+                                phone: lead.phone ?? "",
+                                email: lead.email ?? "",
+                                company: lead.company ?? "",
+                                position: lead.position ?? "",
+                                event_id: lead.event_id ?? null,
+                                product_ids: lead.products
+                                    ? lead.products.map(p => p.id ?? p)
+                                    : (lead.product_ids ?? []),
+                            };
+
+                            setForm(filled);
+                            setOriginalForm(filled);
+                        } catch (error) {
+                            const status = error.response?.status;
+                            if (status === 401) {
+                                navigate('/login');
+                            } else if (status === 404) {
+                                const localLead = await getPendingLeadById(Number(id));
+                                if (localLead) {
+                                    setLeadSource('local');
+                                    const filled = {
+                                        full_name: localLead.full_name ?? "",
+                                        phone: localLead.phone ?? "",
+                                        email: localLead.email ?? "",
+                                        company: localLead.company ?? "",
+                                        position: localLead.position ?? "",
+                                        event_id: localLead.event_id ?? null,
+                                        product_ids: localLead.product ?? [],
+                                    };
+                                    setForm(filled);
+                                    setOriginalForm(filled);
+                                } else {
+                                    alert("Заявка не найдена");
+                                    navigate(-1);
+                                }
+                            } else {
+                                alert("Ошибка загрузки заявки");
+                                navigate(-1);
+                            }
+                        }
+
                     }
                 }
             } finally {
@@ -136,9 +157,10 @@ export default function LeadFormPage() {
             full_name: validateRequired(form.full_name, "ФИО"),
             phone:     validatePhone(form.phone),
             email:     validateEmail(form.email),
-            event_ids: validateProduct(form.event_ids),
+            event_id: validateProduct(form.event_id),
             product:   validateProduct(form.product_ids)
         };
+        console.log('validation errors:', newErrors);
         setErrors(newErrors);
         return !Object.values(newErrors).some(Boolean);
     };
@@ -182,15 +204,8 @@ export default function LeadFormPage() {
     };
 
     const handleEventsChange = (e) => {
-        const selected = Array.from(
-            e.target.selectedOptions,
-            option => Number(option.value)
-        );
-
-        setForm(prev => ({
-            ...prev,
-            event_ids: selected
-        }));
+        const val = e.target.value;
+        setForm(prev => ({ ...prev, event_id: val ? Number(val) : null }));
     };
 
     const handleCancel = () => {
@@ -233,6 +248,8 @@ export default function LeadFormPage() {
     };
 
     const handleSubmit = async e => {
+        console.log('id:', id, 'leadSource:', leadSource);
+
 
         e.preventDefault();
 
@@ -245,7 +262,7 @@ export default function LeadFormPage() {
             email:      form.email,
             company:    form.company,
             position:   form.position,
-            event_id:   form.event_ids[0],
+            event_id:   form.event_id,
             product:    form.product_ids
         };
 
@@ -253,6 +270,22 @@ export default function LeadFormPage() {
 
         try {
             if (isEditRoute) {
+                const online = await isServerAvailable();
+                console.log('online в handleSubmit:', online);
+
+
+                if (!online) {
+                    if (leadSource === 'local') {
+                        await updatePendingLead(Number(id), payload);
+                    } else {
+                        await addPendingLead({ ...payload, _updateId: id });
+                    }
+                    alert("Изменения сохранены локально");
+                    setOriginalForm(form);
+                    setIsEditing(false);
+                    return;
+                }
+
                 const token = localStorage.getItem("access_token");
                 await axios.put(`/api/leads/${id}`, payload, {
                     headers: {
@@ -265,18 +298,25 @@ export default function LeadFormPage() {
                 setOriginalForm(form);
                 setIsEditing(false);
             } else {
-
                 await addPendingLead(payload);
+
                 const available = await isServerAvailable();
                 if (available) {
                     await syncPendingLeads();
                 }
 
-                alert("Lead успешно создан");
-                window.location.href = "/dashboard";
+                alert(available ? "Lead успешно создан" : "Lead сохранён локально");
+                navigate("/dashboard");
             }
         }
         catch (error) {
+            if (!error.response) {
+                await addPendingLead({...payload, _updateId: id});
+                alert("Изменения сохранены локально");
+                setOriginalForm(form);
+                setIsEditing(false);
+                return;
+            }
             if (error.response?.status === 409) {
                 const data = error.response.data;
                 const confirmed = window.confirm(
@@ -307,7 +347,7 @@ export default function LeadFormPage() {
         form.full_name &&
         !validatePhone(form.phone) &&
         !validateEmail(form.email) &&
-        form.event_ids?.length > 0 &&
+        form.event_id &&
         form.product_ids?.length > 0;
 
     if (loading) return <p>Загрузка...</p>;
@@ -404,15 +444,15 @@ export default function LeadFormPage() {
                     />
                 </Field>
 
-                <Field label="События" error={errors.event_ids}>
+                <Field label="События" error={errors.event_id}>
                     {isEditing ? (
                         <select
-                            multiple
-                            name="event_ids"
-                            value={form.event_ids}
+                            name="event_id"
+                            value={form.event_id ?? ""}
                             onChange={handleEventsChange}
-                            style={{ width: "100%", minHeight: 120, padding: 8 }}
+                            style={{ width: "100%", minHeight: 50, padding: 8 }}
                         >
+                            <option value="">— выберите событие —</option>
                             {events.map((event) => (
                                 <option key={event.id} value={event.id}>
                                     {event.name}
@@ -421,9 +461,7 @@ export default function LeadFormPage() {
                         </select>
                     ) : (
                         <p style={{ margin: 0 }}>
-                            {form.event_ids.length > 0
-                                ? form.event_ids.map(getEventName).join(", ")
-                                : "—"}
+                            {form.event_id ? getEventName(form.event_id) : "—"}
                         </p>
                     )}
                 </Field>
@@ -435,7 +473,7 @@ export default function LeadFormPage() {
                             name="product_ids"
                             value={form.product_ids}
                             onChange={handleProductsChange}
-                            style={{ width: "100%", minHeight: 120, padding: 8 }}
+                            style={{ width: "100%", minHeight: 50, padding: 8 }}
                         >
                             {products.map((product) => (
                                 <option key={product.id} value={product.id}>
@@ -452,7 +490,6 @@ export default function LeadFormPage() {
                     )}
                 </Field>
 
-                {/* Кнопки действий — только в режиме редактирования */}
                 {isEditing && (
                     <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
                         <button
