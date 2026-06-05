@@ -72,6 +72,8 @@ class ExportController extends Controller
 
         $callback = function () use ($leads) {
             $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+
 
             fputcsv($handle, [
                 'ID', 'ФИО', 'Телефон', 'Email', 'Менеджер',
@@ -99,9 +101,11 @@ class ExportController extends Controller
 
             fclose($handle);
         };
+        if (ob_get_length()) ob_end_clean();
 
         return response()->stream($callback, 200, $headers);
     }
+
 
     private function exportXlsx($leads)
     {
