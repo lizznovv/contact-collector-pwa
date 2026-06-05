@@ -90,6 +90,6 @@ export async function updatePendingLead(id, data) {
 export async function deletePendingLead(id) {
     const db = await dbPromise;
 
-    return db.delete('pending_leads', id);
+    return db.delete('pending_leads', Number(id));
 }
 

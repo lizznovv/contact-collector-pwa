@@ -237,7 +237,7 @@ export default function LeadFormPage() {
                 });
             }
             alert("Lead успешно удален");
-            window.location.href = "/dashboard";
+            navigate("/dashboard");
         }
         catch (error) {
             console.error("Ошибка при удалении лида:", error.response?.data);
@@ -365,9 +365,15 @@ export default function LeadFormPage() {
                 <h2 style={{ margin: 0 }}>
                     {isEditRoute ? (isEditing ? "Редактирование заявки" : "Просмотр заявки") : "Новая заявка"}
                 </h2>
-
+                <button
+                    type="button"
+                    onClick={() => navigate('/')}
+                >
+                    ← Главная
+                </button>
                 {isEditRoute && !isEditing && (
                     <>
+
                         <button
                             type="button"
                             onClick={() => setIsEditing(true)}

@@ -21,7 +21,7 @@ class LeadController extends Controller
     public function store(LeadRequest $request)
     {
         $validated = $request->validated();
-
+/*
         $existing = Lead::where('phone', $validated['phone'])
             ->where('email', $validated['email'])
             ->first();
@@ -37,7 +37,7 @@ class LeadController extends Controller
                 ],
             ], 409);
         }
-
+*/
         try {
             $lead = Lead::create([
                 'user_id' => auth()->id(),
