@@ -16,6 +16,7 @@ function EventForm() {
         name: '',
         description: '',
         event_date: '',
+        end_date: '',
         is_active: true,
     });
 
@@ -33,6 +34,7 @@ function EventForm() {
                 name: event.name,
                 description: event.description,
                 event_date: event.event_date,
+                end_date: event.end_date ?? '',
                 is_active: event.is_active,
             });
         }
@@ -50,10 +52,24 @@ function EventForm() {
                 ? event.target.checked
                 : event.target.value;
 
-        setFormData(prevData => ({
-            ...prevData,
+        const today = new Date().toISOString().split('T')[0];
+
+        if ((fieldName === 'event_date' || fieldName === 'end_date') && fieldValue < today) {
+            alert('Дата не может быть меньше текущей');
+            return;
+        }
+
+        const newFormData = {
+            ...formData,
             [fieldName]: fieldValue,
-        }));
+        };
+
+        if (newFormData.event_date && newFormData.end_date && newFormData.event_date > newFormData.end_date) {
+            alert('Дата начала не может быть позже даты окончания');
+            return;
+        }
+
+        setFormData(newFormData);
     }
 
     async function handleSubmit(event) {
@@ -123,13 +139,24 @@ function EventForm() {
                 </div>
 
                 <div>
-                    <label>Дата</label>
+                    <label>Дата начала</label>
 
                     <input
                         type="date"
                         name="event_date"
                         value={formData.event_date}
                         onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label>Дата окончания</label>
+
+                    <input
+                        type="date"
+                        name="end_date"
+                        value={formData.end_date}
+                        onChange={handleChange}
+                        min={formData.event_date || new Date().toISOString().split('T')[0]}
                     />
                 </div>
 

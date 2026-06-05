@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getLeads } from '../../../services/adminLeadsService';
+import { getLeads, exportLeads } from '../../../services/adminLeadsService';
 import { getManagers } from '../../../services/adminManagersService';
 import { getEvents } from '../../../services/adminEventsService';
 import { getProducts } from '../../../services/adminProductsService';
@@ -11,6 +11,8 @@ function LeadsTable() {
     const [managers, setManagers] = useState([]);
     const [events, setEvents] = useState([]);
     const [products, setProducts] = useState([]);
+    const [exportFormat, setExportFormat] = useState('xlsx');
+
     const [filters, setFilters] = useState({
         manager_id: '',
         event_id: '',
@@ -45,12 +47,43 @@ function LeadsTable() {
         }
     }
     function handleFilterChange(event) {
-        const { name, value } = event.target;
+        const {name, value} = event.target;
+        const today = new Date().toISOString().split('T')[0];
 
-        setFilters(prev => ({
-            ...prev,
+        const newFilters = {
+            ...filters,
             [name]: value,
-        }));
+        };
+
+        if (newFilters.date_from && newFilters.date_to && (newFilters.date_from > newFilters.date_to)) {
+            alert('Дата "От" не может быть больше даты "До"');
+            return;
+        }
+
+        setFilters(newFilters);
+    }
+    async function handleExport() {
+        try {
+            const blob = await exportLeads(filters, exportFormat);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.download =
+                exportFormat === 'csv'
+                    ? 'leads.csv'
+                    : 'leads.xlsx';
+
+            document.body.appendChild(link);
+            link.click();
+
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        }
+        catch (error) {
+            console.error(error);
+            alert('Ошибка экспорта');
+        }
     }
 
     return(
@@ -123,6 +156,18 @@ function LeadsTable() {
                 <button onClick={loadLeads}>
                     Применить
                 </button>
+
+                <select
+                    value={exportFormat}
+                    onChange={(e) => setExportFormat(e.target.value)}
+                >
+                    <option value="xlsx">Excel (.xlsx)</option>
+                    <option value="csv">CSV (.csv)</option>
+                </select>
+
+                <button onClick={handleExport}>
+                    Экспортировать
+                </button>
             </div>
 
             <table>
@@ -147,7 +192,10 @@ function LeadsTable() {
                         <td>{lead.email}</td>
                         <td>{lead.user?.name}</td>
                         <td>{lead.event?.name}</td>
-                        <td>{lead.created_at}</td>
+                        <td>
+                            {lead.event?.event_date}
+                            {lead.event?.end_date && ` — ${lead.event.end_date}`}
+                        </td>
                     </tr>
                 ))}
                 </tbody>

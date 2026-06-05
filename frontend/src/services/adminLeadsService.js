@@ -7,3 +7,14 @@ export async function getLeads(filters = {}) {
 
     return response.data.leads;
 }
+export async function exportLeads(filters = {}, format = 'xlsx') {
+    const response = await api.get('/admin/export/leads', {
+        params: {
+            ...filters,
+            format,
+        },
+        responseType: 'blob',
+    });
+
+    return response.data;
+}

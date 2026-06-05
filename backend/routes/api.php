@@ -73,7 +73,7 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
             });
 
             Route::get('/admin/leads', [LeadController::class, 'adminIndex']);
-            Route::get('/export/leads', [ExportController::class, 'leads']);
+            Route::get('/admin/export/leads', [ExportController::class, 'leads']);
         });
     });
 
