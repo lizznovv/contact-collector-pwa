@@ -18,6 +18,11 @@ Route::post('/login', [UserController::class, 'login'])
 Route::post('/refresh', [UserController::class, 'refresh']);
 Route::get('/health', [HealthController::class, 'index']);
 
+Route::prefix('audit-logs')->group(function () {
+    Route::get('/',     [AuditLogController::class, 'index']);
+    Route::get('/{id}', [AuditLogController::class, 'show']);
+});
+
 Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(function () {
 
     Route::get('/user', function (Request $request) {
@@ -67,13 +72,9 @@ Route::middleware(['auth:api', 'throttle:global', 'xss.protect'])->group(functio
                 Route::delete('/{id}', [ProductController::class, 'destroy']);
             });
 
-            Route::prefix('audit-logs')->group(function () {
-                Route::get('/',     [AuditLogController::class, 'index']);
-                Route::get('/{id}', [AuditLogController::class, 'show']);
-            });
 
             Route::get('/admin/leads', [LeadController::class, 'adminIndex']);
-            Route::get('/export/leads', [ExportController::class, 'leads']);
+            Route::get('/admin/export/leads', [ExportController::class, 'leads']);
         });
     });
 

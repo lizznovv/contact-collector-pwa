@@ -12,6 +12,7 @@ class Event extends Model
         'name',
         'description',
         'event_date',
+        'end_date',
         'is_active',
     ];
 

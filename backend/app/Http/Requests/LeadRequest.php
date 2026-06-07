@@ -44,8 +44,8 @@ class LeadRequest extends FormRequest
     {
         return [
             'full_name' => 'required|string|max:255',
-            'phone'     => ['required', 'regex:/^\+7\d{10}$/'],
-            'email'     => 'required|email',
+            'phone'     => ['nullable', 'required_without:email', 'regex:/^\+7\d{10}$/'],
+            'email'     => ['nullable', 'required_without:phone', 'email'],
             'event_id'  => 'required|integer|exists:events,id',
             'company'   => 'nullable|string|max:255',
             'position'  => 'nullable|string|max:255',
@@ -60,6 +60,11 @@ class LeadRequest extends FormRequest
             'phone.regex' => 'Телефон должен соответствовать формату +7 (xxx) xxx-xx-xx.',
             'email.email' => 'Неверный формат email адреса.',
             'required' => 'Поле :attribute обязательно для заполнения.',
+            'phone.required_without' =>
+                'Укажите телефон или email.',
+
+            'email.required_without' =>
+                'Укажите телефон или email.',
         ];
     }
 

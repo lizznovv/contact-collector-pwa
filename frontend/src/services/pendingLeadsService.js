@@ -73,8 +73,23 @@ export async function resetRetry(id) {
 
     await db.put('pending_leads', lead);
 }
+
+export async function updatePendingLead(id, data) {
+    const db = await dbPromise;
+    const lead = await db.get('pending_leads', id);
+    if (!lead) return;
+
+    return db.put('pending_leads', {
+        ...lead,
+        ...data,
+        updatedAt: Date.now(),
+        syncStatus: 'pending'
+    });
+}
+
 export async function deletePendingLead(id) {
     const db = await dbPromise;
 
-    return db.delete('pending_leads', id);
+    return db.delete('pending_leads', Number(id));
 }
+
