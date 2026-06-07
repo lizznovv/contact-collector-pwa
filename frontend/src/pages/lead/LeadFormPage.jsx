@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
     validateRequired,
@@ -16,13 +16,20 @@ import {
 import { syncPendingLeads } from "../../services/syncService";
 import { isServerAvailable } from "../../services/networkService";
 import {getCachedEvents, getCachedProducts} from '../../services/referenceDataService';
+import {
+    saveDraft,
+    deleteDraft
+} from '../../services/draftsService';
 
 export default function LeadFormPage() {
+    console.log("LeadFormPage rendered");
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const isEditRoute = Boolean(id);
 
-    const [form, setForm] = useState({
+    const [form, setForm] = useState(() => ({
+        id: crypto.randomUUID(),
         full_name: "",
         phone: "",
         email: "",
@@ -30,7 +37,7 @@ export default function LeadFormPage() {
         position: "",
         event_ids: [],
         product_ids: []
-    });
+    }));
 
     const [originalForm, setOriginalForm] = useState({
             full_name: "",
@@ -50,6 +57,12 @@ export default function LeadFormPage() {
     const [loading, setLoading] = useState(isEditRoute);
     const [saving, setSaving] = useState(false);
     const [leadSource, setLeadSource] = useState('server');
+    const [draftId, setDraftId] = useState(null);
+    const [draftLoaded, setDraftLoaded] = useState(false);
+
+
+
+
 
     useEffect(() => {
         const load = async () => {
@@ -79,6 +92,7 @@ export default function LeadFormPage() {
                         const lead = data.lead ?? data;
 
                         const filled = {
+                            id: id,
                             full_name: lead.full_name ?? "",
                             phone: lead.phone ?? "",
                             email: lead.email ?? "",
@@ -106,6 +120,7 @@ export default function LeadFormPage() {
                                 setLeadSource('local');
 
                                 const filled = {
+                                    id: id,
                                     full_name: localLead.full_name ?? "",
                                     phone: localLead.phone ?? "",
                                     email: localLead.email ?? "",
@@ -131,6 +146,71 @@ export default function LeadFormPage() {
         load();
     }, [id, isEditRoute]);
 
+    useEffect(() => {
+
+        if (isEditRoute) return;
+
+        const draft = location.state?.draft;
+
+        if (draft) {
+
+            setDraftId(draft.id);
+
+            setForm({
+                id: draft.id,
+                full_name: draft.full_name ?? "",
+                phone: draft.phone ?? "",
+                email: draft.email ?? "",
+                company: draft.company ?? "",
+                position: draft.position ?? "",
+                event_ids: draft.event_ids ?? [],
+                product_ids: draft.product_ids ?? []
+            });
+        }
+
+        setDraftLoaded(true);
+
+    }, [location.state, isEditRoute]);
+
+    useEffect(() => {
+        console.log("AUTOSAVE EFFECT START");
+
+        if (isEditRoute) return;
+        if (!draftLoaded) return; // Убедитесь, что draftLoaded устанавливается в true при монтировании для новой формы!
+
+        const timeout = setTimeout(async () => {
+            const hasData =
+                form.full_name ||
+                form.phone ||
+                form.email ||
+                form.company ||
+                form.position ||
+                form.event_ids.length > 0 ||
+                form.product_ids.length > 0;
+
+            if (!hasData) return;
+
+            // Если по какой-то причине в форме пропал id, генерируем на лету,
+            // но лучше починить onChange (см. шаг 2)
+            if (!form.id) {
+                console.warn("Form id is missing! Generating a new one.");
+                form.id = crypto.randomUUID();
+            }
+
+            try {
+                console.log("DRAFT DATA TO SAVE:", form);
+                const savedId = await saveDraft(form);
+                console.log("SAVED ID успешно записан:", savedId);
+            } catch (error) {
+                console.error("DRAFT SAVE ERROR", error);
+            }
+
+        }, 2000);
+
+        return () => clearTimeout(timeout);
+// Убираем draftId из зависимостей, оставляем только форму
+    }, [form, draftLoaded, isEditRoute]);
+
     const validateForm = () => {
         const newErrors = {
             full_name: validateRequired(form.full_name, "ФИО"),
@@ -144,6 +224,7 @@ export default function LeadFormPage() {
     };
 
     const handleChange = e => {
+        console.log("CHANGE", e.target.name, e.target.value);
         const {name, value} = e.target;
 
         if (name === "phone") {
@@ -267,6 +348,11 @@ export default function LeadFormPage() {
             } else {
 
                 await addPendingLead(payload);
+
+                if (draftId) {
+                    await deleteDraft(draftId);
+                }
+
                 const available = await isServerAvailable();
                 if (available) {
                     await syncPendingLeads();
@@ -277,6 +363,18 @@ export default function LeadFormPage() {
             }
         }
         catch (error) {
+            if (!isEditRoute) {
+                try {
+                    const draftData = {
+                        ...form
+                    };
+
+
+                    await saveDraft(draftData);
+                } catch (e) {
+                    console.error("Failed to save draft", e);
+                }
+            }
             if (error.response?.status === 409) {
                 const data = error.response.data;
                 const confirmed = window.confirm(

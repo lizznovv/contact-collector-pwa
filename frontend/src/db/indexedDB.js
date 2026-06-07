@@ -10,8 +10,7 @@ export const dbPromise = openDB(DB_NAME, DB_VERSION, {
         if (!db.objectStoreNames.contains('drafts')) {
 
             const draftsStore = db.createObjectStore('drafts', {
-                keyPath: 'id',
-                autoIncrement: true
+                keyPath: 'id'
             });
 
             draftsStore.createIndex('updatedAt', 'updatedAt');
@@ -22,7 +21,6 @@ export const dbPromise = openDB(DB_NAME, DB_VERSION, {
 
             const pendingStore = db.createObjectStore('pending_leads', {
                 keyPath: 'id',
-                autoIncrement: true
             });
 
             pendingStore.createIndex('syncStatus', 'syncStatus');
