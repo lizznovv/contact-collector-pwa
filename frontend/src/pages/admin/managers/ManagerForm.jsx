@@ -132,93 +132,112 @@ function ManagerForm() {
         !validateEmail(formData.email);
 
     return (
-        <div>
-            <h1>
-                {isEdit
-                    ? 'Редактирование менеджера'
-                    : 'Создание менеджера'}
-            </h1>
+        <div className="page-container">
+            <div className="page-card">
 
-            <form onSubmit={handleSubmit} autoComplete="off" >
-
-                <div>
-                    <label>Имя</label>
-
-                    <input
-                        type="text"
-                        name="name"
-                        autoComplete="new-password"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                    />
-                    {errors.name && <p>{errors.name}</p>}
-                </div>
-                <div>
-                    <label>Email</label>
-
-                    <input
-                        type="email"
-                        name="email"
-                        autoComplete="new-password"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
-                    {errors.name && <p>{errors.name}</p>}
+                <div className="page-header">
+                    <h1 className="page-title">
+                        {isEdit
+                            ? 'Редактирование менеджера'
+                            : 'Создание менеджера'}
+                    </h1>
                 </div>
 
-                <div>
-                    <label>Телефон</label>
+                <form onSubmit={handleSubmit} autoComplete="off" >
 
-                    <input
-                        type="text"
-                        name="phone"
-                        autoComplete="new-password"
-                        value={formData.phone}
-                        placeholder="+7 (___) ___-__-__"
-                        onChange={handleChange}
-                        required
-                    />
-                    {errors.phone && <p>{errors.phone}</p>}
-                </div>
+                    <Field label="Имя" error={errors.name}>
+                        <input
+                            className="form-input"
+                            type="text"
+                            name="name"
+                            autoComplete="new-password"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </Field>
 
-                <div>
-                    <label>Пароль</label>
+                    <Field label="Email" error={errors.email}>
+                        <input
+                            className="form-input"
+                            type="email"
+                            name="email"
+                            autoComplete="new-password"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </Field>
 
-                    <input
-                        type="password"
-                        name="password"
-                        autoComplete="new-password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required={!isEdit}
-                        placeholder={
-                            isEdit
-                                ? 'Оставьте пустым, чтобы не менять пароль'
-                                : ''
-                        }
-                    />
-                </div>
+                    <Field label="Телефон" error={errors.phone}>
+                        <input
+                            className="form-input"
+                            type="text"
+                            name="phone"
+                            autoComplete="new-password"
+                            value={formData.phone}
+                            placeholder="+7 (___) ___-__-__"
+                            onChange={handleChange}
+                            required
+                        />
+                    </Field>
 
-                <button type="submit" disabled={!isFormValid}>Сохранить</button>
-                {
-                    isEdit && (
+                    <Field label="Пароль" error={errors.password}>
+                        <input
+                            className="form-input"
+                            type="password"
+                            name="password"
+                            autoComplete="new-password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required={!isEdit}
+                            placeholder={
+                                isEdit
+                                    ? 'Оставьте пустым, чтобы не менять пароль'
+                                    : ''
+                            }
+                        />
+                    </Field>
+
+                    <div className="form-actions">
+
                         <button
-                            type="button"
-                            onClick={handleDelete}
-                            style={{
-                                marginLeft: '10px',
-                                backgroundColor: '#d9534f',
-                                color: 'white'
-                            }}
+                            className="btn btn-primary"
+                            type="submit" disabled={!isFormValid}
                         >
-                            Удалить менеджера
+                            Сохранить
                         </button>
-                )}
-            </form>
+                        {
+                            isEdit && (
+                                <button
+                                    className="btn btn-danger"
+                                    type="button"
+                                    onClick={handleDelete}
+                                >
+                                    Удалить менеджера
+                                </button>
+                            )
+                        }
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }
 
+function Field({ label, error, children }) {
+    return (
+        <div className="form-group">
+            <label className="form-label">
+                {label}
+            </label>
+            {children}
+            {error &&
+                <p className="form-error">
+                    {error}
+                </p>
+            }
+        </div>
+    );
+}
 export default ManagerForm;

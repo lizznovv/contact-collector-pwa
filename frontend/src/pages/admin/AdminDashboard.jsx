@@ -12,28 +12,47 @@ function AdminDashboard() {
     const navigate = useNavigate();
 
     return (
-        <div className="dashboard-grid">
-            <h1>Stream Contact</h1>
+        <div className="dashboard-container">
+            <h1 className="page-title">
+                Stream Contact
+            </h1>
 
-            <button onClick={() => navigate('/admin/leads')}>
-                Leads
-            </button>
+            <div className="dashboard-actions">
+                <button
+                    className="btn btn-primary"
+                    onClick={() => navigate('/admin/leads')}
+                >
+                    Leads
+                </button>
 
-            <button onClick={() => navigate('/admin/managers')}>
-                Managers
-            </button>
+                <button
+                    className="btn btn-primary"
+                    onClick={() => navigate('/admin/managers')}
+                >
+                    Managers
+                </button>
 
-            <button onClick={() => navigate('/admin/products')}>
-                Products
-            </button>
+                <button
+                    className="btn btn-primary"
+                    onClick={() => navigate('/admin/products')}
+                >
+                    Products
+                </button>
 
-            <button onClick={() => navigate('/admin/events')}>
-                Events
-            </button>
+                <button
+                    className="btn btn-primary"
+                    onClick={() => navigate('/admin/events')}
+                >
+                    Events
+                </button>
 
-            <button onClick={handleLogout}>
-                Logout
-            </button>
+                <button
+                    className="btn btn-danger"
+                    onClick={handleLogout}
+                >
+                    Logout
+                </button>
+            </div>
         </div>
     );
 }

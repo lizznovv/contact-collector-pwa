@@ -4,15 +4,41 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAllPendingLeads, resetRetry } from '../../services/pendingLeadsService';
 import { syncSingleLead } from '../../services/syncService';
+import DraftsModal from './DraftModal';
+import { getAllDrafts, deleteDraft, clearDrafts } from '../../services/draftsService';
+
 
 function LeadDashboard() {
 
     const [leads, setLeads] = useState([]);
+    const [drafts, setDrafts] = useState([]);
+    const [showDrafts, setShowDrafts] = useState(false);
     const { logout } = useAuth();
     const navigate = useNavigate();
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
 
     useEffect(() => {
         loadLeads();
+    }, []);
+
+    useEffect(() => {
+
+        function handleOnline() {
+            setIsOnline(true);
+        }
+
+        function handleOffline() {
+            setIsOnline(false);
+        }
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+
     }, []);
 
     async function loadLeads() {
@@ -22,6 +48,14 @@ function LeadDashboard() {
             status: lead.syncStatus,
             source: 'local'
         }));
+
+        const draftList = await getAllDrafts();
+
+        draftList.sort(
+            (a, b) => b.updatedAt - a.updatedAt
+        );
+
+        setDrafts(draftList);
 
         try {
             const data = await getLeads();
@@ -52,56 +86,116 @@ function LeadDashboard() {
         await loadLeads();
     }
 
+    async function handleDeleteDraft(id) {
+        await deleteDraft(id);
+        await loadLeads();
+    }
+
+    async function handleDeleteAllDrafts() {
+        await clearDrafts();
+        await loadLeads();
+    }
+
+    function handleOpenDraft(draft) {
+        setShowDrafts(false);
+        navigate('/leads/new', { state: { draft } });
+    }
+
     return (
-        <div>
-            <h1>My Leads</h1>
+        <div className="dashboard-container">
+            <div
+                className={
+                    isOnline
+                        ? 'connection-status online'
+                        : 'connection-status offline'
+                }
+            >
+                {isOnline
+                    ? '🟢 Онлайн'
+                    : '🔴 Оффлайн'}
+            </div>
 
-            <button onClick={() => navigate('/leads/new')}>
-                Create Lead
-            </button>
-            <button onClick={handleLogout}>
-                Logout
-            </button>
+            <h1 className="page-title">
+                My Leads
+            </h1>
 
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Company</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
+            <div className="dashboard-actions">
+                <button
+                    className="btn btn-primary"
+                    onClick={() => navigate('/leads/new')}
+                >
+                    Create Lead
+                </button>
 
-                <tbody>
-                {leads.map((lead) => (
-                    <tr
-                        key={`${lead.source}-${lead.id}`}
-                        onClick={() => navigate(`/leads/${lead.id}`)}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        <td>{lead.id}</td>
-                        <td>{lead.full_name}</td>
-                        <td>{lead.company}</td>
-                        <td>{lead.status}</td>
-                        <td>
-                            {lead.status === 'error' && (
-                                <button
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleRetry(lead);
-                                    }}
-                                >
-                                    Повторить
-                                </button>
-                            )}
-                        </td>
+                <button
+                    className="btn btn-secondary"
+                    onClick={() => setShowDrafts(true)}
+                >
+                    Черновики {drafts.length > 0 && `(${drafts.length})`}
+                </button>
+
+                <button
+                    className="btn btn-danger"
+                    onClick={handleLogout}
+                >
+                    Logout
+                </button>
+            </div>
+
+            <div className="table-wrapper">
+
+                <table className="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Company</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody>
+                    {leads.map((lead) => (
+                        <tr
+                            className="table-row-clickable"
+                            key={`${lead.source}-${lead.id}`}
+                            onClick={() => navigate(`/leads/${lead.id}`)}
+                        >
+                            <td>{lead.id}</td>
+                            <td>{lead.full_name}</td>
+                            <td>{lead.company}</td>
+                            <td>{lead.status}</td>
+                            <td>
+                                {lead.status === 'error' && (
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            handleRetry(lead);
+                                        }}
+                                    >
+                                        Повторить
+                                    </button>
+                                )}
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {showDrafts && (
+                <DraftsModal
+                    drafts={drafts}
+                    onClose={() => setShowDrafts(false)}
+                    onOpen={handleOpenDraft}
+                    onDelete={handleDeleteDraft}
+                    onDeleteAll={handleDeleteAllDrafts}
+                />
+            )}
         </div>
     );
 }
+
 export default LeadDashboard;

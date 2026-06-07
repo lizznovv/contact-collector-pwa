@@ -4,7 +4,7 @@ import {
     deletePendingLead,
     incrementRetry
 } from './pendingLeadsService';
-import { createLead, syncLead } from './leadService';
+import { createLead, syncLead, updateLead } from './leadService';
 
 let isSyncing = false;
 
@@ -23,9 +23,22 @@ export async function syncSingleLead(lead, force = false){
         delete payload.updatedAt;
         delete payload.createdAt;
 
-        const result = await createLead(payload, lead.idempotencyKey);
+        delete payload.idempotencyKey;
 
-        await syncLead(result.id);
+        const updateId = payload._updateId;
+        delete payload._updateId;
+        delete payload.id;
+
+        if (updateId) {
+            console.log('calling updateLead, updateId:', updateId, 'payload:', payload);
+
+            await updateLead(updateId, payload, lead.idempotencyKey);
+        }
+        else {
+            const result = await createLead(payload, lead.idempotencyKey);
+            await syncLead(result.id);
+        }
+
         await deletePendingLead(lead.id);
 
         console.log(`Lead ${lead.id} synced`);
@@ -69,3 +82,6 @@ export async function syncPendingLeads() {
         isSyncing = false;
     }
 }
+
+
+

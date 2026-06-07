@@ -22,22 +22,6 @@ class LeadController extends Controller
     {
         $validated = $request->validated();
 
-        $existing = Lead::where('phone', $validated['phone'])
-            ->where('email', $validated['email'])
-            ->first();
-
-        if ($existing) {
-            return response()->json([
-                'duplicate_found' => true,
-                'message'         => 'Заявка с таким телефоном и email уже существует.',
-                'existing_lead'   => $existing,
-                'actions'         => [
-                    'update'           => "/api/leads/{$existing->id}",
-                    'cancel' => 'Cancel',
-                ],
-            ], 409);
-        }
-
         try {
             $lead = Lead::create([
                 'user_id' => auth()->id(),
@@ -88,7 +72,18 @@ class LeadController extends Controller
         $lead = Lead::findOrFail($id);
 
         $old = $lead->only(['full_name', 'phone', 'email', 'company', 'position']);
-        $lead->update($validated);
+        $lead->update([
+            'full_name' => $validated['full_name'],
+            'phone'     => $validated['phone'],
+            'email'     => $validated['email'],
+            'company'   => $validated['company'] ?? null,
+            'position'  => $validated['position'] ?? null,
+            'event_id'  => $validated['event_id'],
+        ]);
+
+        if (isset($validated['product'])) {
+            $lead->products()->sync($validated['product']);
+        }
 
         AuditLogger::log(
             'UPDATE_LEAD',

@@ -1,0 +1,32 @@
+.table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background: rgba(255,255,255,0.9);
+    border-radius: 16px;
+}
+
+.table th {
+    padding: 16px;
+    text-align: left;
+
+    background: rgba(0,0,0,0.03);
+
+    font-weight: 600;
+}
+
+.table td {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.table-row-clickable {
+    cursor: pointer;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}

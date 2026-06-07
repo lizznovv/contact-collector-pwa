@@ -1,0 +1,106 @@
+
+/* Адаптация таблицы для мобильных устройств */
+@media (max-width: 768px) {
+
+    .table {
+        min-width: 100% !important;
+    }
+
+    /* Скрываем обычную "шапку" таблицы (теги th) */
+    .table thead {
+        display: none;
+    }
+
+    /* Делаем так, чтобы каждая строка и каждая ячейка стали блоками на всю ширину */
+    .table tbody,
+    .table tr,
+    .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table tr {
+        margin-bottom: 20px; /* Расстояние между карточками */
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: white;
+        overflow: hidden;
+    }
+
+    .table td {
+        text-align: right; /* Значение прижимаем к правому краю */
+        padding: 12px 16px;
+        border-top: 1px solid #f0f0f0;
+        position: relative;
+        padding-left: 50%; /* Оставляем место слева под название колонки */
+    }
+
+    .table td:first-child {
+        background: #f8fafc; /* Выделяем ID цветом */
+        font-weight: bold;
+        border-top: none;
+    }
+
+    /* Магия: вставляем название колонки из атрибута data-label */
+    .table td::before {
+        content: attr(data-label); /* Сюда подставится текст: ID, ФИО и т.д. */
+        position: absolute;
+        left: 16px;
+        width: 45%;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .table-wrapper {
+        margin: 0;
+        width: 100%;
+    }
+
+    .dashboard-container {
+        padding: 10px; /* Было 24px, стало 10px */
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .page-title {
+        font-size: 32px;
+    }
+
+    .page-card {
+        padding: 20px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .dashboard-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .filters-panel {
+        flex-direction: column;
+    }
+
+    .filter-control {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .login-card {
+        padding: 20px;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+
+}
