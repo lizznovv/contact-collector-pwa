@@ -154,14 +154,78 @@ export default function LeadFormPage() {
 
                     }
                 }
-            }
-            finally {
+            } finally {
                 setLoading(false);
             }
         };
 
         load();
     }, [id, isEditRoute]);
+
+    useEffect(() => {
+
+        if (isEditRoute) return;
+
+        const draft = location.state?.draft;
+
+        if (draft) {
+
+            setDraftId(draft.id);
+
+            setForm({
+                id: draft.id,
+                full_name: draft.full_name ?? "",
+                phone: draft.phone ?? "",
+                email: draft.email ?? "",
+                company: draft.company ?? "",
+                position: draft.position ?? "",
+                event_ids: draft.event_ids ?? [],
+                product_ids: draft.product_ids ?? []
+            });
+        }
+
+        setDraftLoaded(true);
+
+    }, [location.state, isEditRoute]);
+
+    useEffect(() => {
+        console.log("AUTOSAVE EFFECT START");
+
+        if (isEditRoute) return;
+        if (!draftLoaded) return; // Убедитесь, что draftLoaded устанавливается в true при монтировании для новой формы!
+
+        const timeout = setTimeout(async () => {
+            const hasData =
+                form.full_name ||
+                form.phone ||
+                form.email ||
+                form.company ||
+                form.position ||
+                form.event_ids.length > 0 ||
+                form.product_ids.length > 0;
+
+            if (!hasData) return;
+
+            // Если по какой-то причине в форме пропал id, генерируем на лету,
+            // но лучше починить onChange (см. шаг 2)
+            if (!form.id) {
+                console.warn("Form id is missing! Generating a new one.");
+                form.id = crypto.randomUUID();
+            }
+
+            try {
+                console.log("DRAFT DATA TO SAVE:", form);
+                const savedId = await saveDraft(form);
+                console.log("SAVED ID успешно записан:", savedId);
+            } catch (error) {
+                console.error("DRAFT SAVE ERROR", error);
+            }
+
+        }, 2000);
+
+        return () => clearTimeout(timeout);
+// Убираем draftId из зависимостей, оставляем только форму
+    }, [form, draftLoaded, isEditRoute]);
 
     useEffect(() => {
         if (isEditRoute) return;
@@ -404,9 +468,8 @@ export default function LeadFormPage() {
                     await saveDraft(draftData);
                 } catch (e) {
                     console.error("Failed to save draft", e);
-                }
             }
-
+          
             if (error.response?.status === 409) {
                 const data = error.response.data;
                 const confirmed = window.confirm(

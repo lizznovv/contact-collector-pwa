@@ -6,6 +6,8 @@ export async function getAllDrafts() {
     return db.getAll('drafts');
 }
 export async function saveDraft(draft){
+    console.log('SAVE DRAFT', draft);
+
     const db = await dbPromise;
 
     return db.put('drafts', {

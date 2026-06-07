@@ -53,7 +53,6 @@ class ProductController extends Controller
         return response()->json(['product' => $product]);
     }
 
-
     public function update(ProductRequest $request, $id)
     {
         $validated = $request->validated();

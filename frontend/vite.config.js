@@ -12,8 +12,11 @@ export default defineConfig({
           strategies: 'injectManifest',
           srcDir: 'src',
           filename: 'sw.js',
+          injectManifest: {
+              globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+          },
           devOptions: {
-              enabled: true, // Включает поддержку PWA в режиме разработки
+              enabled: true,
               type: 'module'
           },
           manifest: {
@@ -39,7 +42,7 @@ export default defineConfig({
                       src: '/icon-512.png',
                       sizes: '512x512',
                       type: 'image/png',
-                      purpose: 'maskable' // Важно для Android
+                      purpose: 'maskable'
                   }
               ]
           }
@@ -49,7 +52,6 @@ export default defineConfig({
         host: '0.0.0.0',
         port: 5173,
         https: {
-            // Важно: пути должны соответствовать тому, как вы назвали файлы
             key: fs.readFileSync('./certs/localhost+3-key.pem'),
             cert: fs.readFileSync('./certs/localhost+3.pem'),
         },
@@ -61,7 +63,6 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/api/, '/api')
             }
         },
-        // Настройка для WSL2, чтобы HMR (Hot Module Replacement) работал стабильно
         watch: {
             usePolling: true
         }
