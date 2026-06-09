@@ -1,0 +1,64 @@
+
+html,
+body {
+    /*overflow-x: hidden;*/
+}
+
+/* Сброс размеров */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Базовые настройки страницы */
+html,
+body,
+#root {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Основной стиль приложения */
+body {
+    font-family: Inter, Arial, sans-serif;
+    background: var(--background);
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+/* Заголовки */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 0;
+    color: var(--text-primary);
+}
+
+/* Ссылки */
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Картинки */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Формы */
+input,
+select,
+textarea,
+button {
+    font: inherit;
+}

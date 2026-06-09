@@ -43,25 +43,41 @@ function LoginPage() {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
+        <div className="login-screen">
+            <div className="page-card login-card">
+                <h1 className="page-title" style={{ textAlign: 'center', marginBottom: '24px' }}>
+                    Вход в систему
+                </h1>
 
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label className="form-label">Email</label>
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                    </div>
 
-            <button type="submit">
-                Login
-            </button>
-        </form>
+                    <div className="form-group" style={{ marginBottom: '32px' }}>
+                        <label className="form-label">Пароль</label>
+                        <input
+                            className="form-input"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <button className="btn btn-primary" type="submit" style={{ width: '100%', padding: '14px' }}>
+                        Войти
+                    </button>
+                </form>
+            </div>
+        </div>
     );
 }
 

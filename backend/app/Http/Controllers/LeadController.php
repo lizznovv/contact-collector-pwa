@@ -21,23 +21,7 @@ class LeadController extends Controller
     public function store(LeadRequest $request)
     {
         $validated = $request->validated();
-/*
-        $existing = Lead::where('phone', $validated['phone'])
-            ->where('email', $validated['email'])
-            ->first();
 
-        if ($existing) {
-            return response()->json([
-                'duplicate_found' => true,
-                'message'         => 'Заявка с таким телефоном и email уже существует.',
-                'existing_lead'   => $existing,
-                'actions'         => [
-                    'update'           => "/api/leads/{$existing->id}",
-                    'cancel' => 'Cancel',
-                ],
-            ], 409);
-        }
-*/
         try {
             $lead = Lead::create([
                 'user_id' => auth()->id(),

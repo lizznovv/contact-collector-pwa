@@ -87,119 +87,161 @@ function LeadsTable() {
     }
 
     return(
-        <div>
+        <div className="dashboard-container">
+            <h1 className="page-title">
+                Leads
+            </h1>
+            <p className="table-info">
+                Найдено лидов: {leads.length}
+            </p>
 
-            <h1>Лиды</h1>
-            <button
-                type="button"
-                onClick={() => navigate('/admin')}
-            >
-                ← Главная
-            </button>
-            <div>
-                <select
-                    name="manager_id"
-                    value={filters.manager_id}
-                    onChange={handleFilterChange}
+            <div className="dashboard-actions">
+                <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={() => navigate('/admin')}
                 >
-                    <option value="">Все менеджеры</option>
-
-                    {managers.map(manager => (
-                        <option key={manager.id} value={manager.id} >
-                            {manager.name}
-                        </option>
-                    ))}
-                </select>
-
-                <select
-                    name="event_id"
-                    value={filters.event_id}
-                    onChange={handleFilterChange}
-                >
-                    <option value="">Все события</option>
-
-                    {events.map(event => (
-                        <option key={event.id} value={event.id} >
-                            {event.name}
-                        </option>
-                    ))}
-                </select>
-
-                <select
-                    name="product_id"
-                    value={filters.product_id}
-                    onChange={handleFilterChange}
-                >
-                    <option value="">Все продукты</option>
-
-                    {products.map(product => (
-                        <option key={product.id} value={product.id} >
-                            {product.name}
-                        </option>
-                    ))}
-                </select>
-
-                <input
-                    type="date"
-                    name="date_from"
-                    value={filters.date_from}
-                    onChange={handleFilterChange}
-                />
-
-                <input
-                    type="date"
-                    name="date_to"
-                    value={filters.date_to}
-                    onChange={handleFilterChange}
-                />
-
-                <button onClick={loadLeads}>
-                    Применить
-                </button>
-
-                <select
-                    value={exportFormat}
-                    onChange={(e) => setExportFormat(e.target.value)}
-                >
-                    <option value="xlsx">Excel (.xlsx)</option>
-                    <option value="csv">CSV (.csv)</option>
-                </select>
-
-                <button onClick={handleExport}>
-                    Экспортировать
+                    ← Главная
                 </button>
             </div>
 
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>ФИО</th>
-                    <th>Телефон</th>
-                    <th>Email</th>
-                    <th>Менеджер</th>
-                    <th>Событие</th>
-                    <th>Дата</th>
-                </tr>
-                </thead>
+            <div className="page-card">
+                <div className="filters-panel">
+                    <h3 className="section-title">
+                        Фильтры
+                    </h3>
 
-                <tbody>
-                {leads.map(lead => (
-                    <tr key={lead.id}>
-                        <td>{lead.id}</td>
-                        <td>{lead.full_name}</td>
-                        <td>{lead.phone}</td>
-                        <td>{lead.email}</td>
-                        <td>{lead.user?.name}</td>
-                        <td>{lead.event?.name}</td>
-                        <td>
-                            {lead.event?.event_date}
-                            {lead.event?.end_date && ` — ${lead.event.end_date}`}
-                        </td>
+                    <select
+                        className="form-select filter-control"
+                        name="manager_id"
+                        value={filters.manager_id}
+                        onChange={handleFilterChange}
+                    >
+                        <option value="">Все менеджеры</option>
+
+                        {managers.map(manager => (
+                            <option key={manager.id} value={manager.id} >
+                                {manager.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
+                        className="form-select filter-control"
+                        name="event_id"
+                        value={filters.event_id}
+                        onChange={handleFilterChange}
+                    >
+                        <option value="">Все события</option>
+
+                        {events.map(event => (
+                            <option key={event.id} value={event.id} >
+                                {event.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
+                        className="form-select filter-control"
+                        name="product_id"
+                        value={filters.product_id}
+                        onChange={handleFilterChange}
+                    >
+                        <option value="">Все продукты</option>
+
+                        {products.map(product => (
+                            <option key={product.id} value={product.id} >
+                                {product.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <input
+                        className="form-input filter-control"
+                        type="date"
+                        name="date_from"
+                        value={filters.date_from}
+                        onChange={handleFilterChange}
+                    />
+
+                    <input
+                        className="form-input filter-control"
+                        type="date"
+                        name="date_to"
+                        value={filters.date_to}
+                        onChange={handleFilterChange}
+                    />
+
+                    <button
+                        className="btn btn-primary"
+                        onClick={loadLeads}
+                    >
+                        Применить
+                    </button>
+
+                    <select
+                        className="form-select filter-control"
+                        value={exportFormat}
+                        onChange={(e) => setExportFormat(e.target.value)}
+                    >
+                        <option value="xlsx">Excel (.xlsx)</option>
+                        <option value="csv">CSV (.csv)</option>
+                    </select>
+
+                    <button
+                        className="btn btn-secondary"
+                        onClick={handleExport}
+                    >
+                        Экспортировать
+                    </button>
+                </div>
+            </div>
+
+            <div className="table-wrapper">
+
+                <table className="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ФИО</th>
+                        <th>Телефон</th>
+                        <th>Email</th>
+                        <th>Менеджер</th>
+                        <th>Событие</th>
+                        <th>Дата</th>
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody>
+                    {leads.length === 0 ? (
+                        <tr>
+                            <td colSpan="7">
+                                Лиды не найдены
+                            </td>
+                        </tr>
+                    ) : (
+                        leads.map(lead => (
+                            <tr
+                                key={lead.id}
+                            >
+                                <td data-label="ID">{lead.id}</td>
+                                <td data-label="ФИО">{lead.full_name}</td>
+                                <td data-label="Телефон">{lead.phone}</td>
+                                <td data-label="Email">{lead.email}</td>
+                                <td data-label="Менеджер">{lead.user?.name}</td>
+                                <td data-label="Событие">{lead.event?.name}</td>
+                                <td data-label="Дата">
+                                    <span>
+                                        {lead.event?.event_date}
+                                        {lead.event?.end_date && ` — ${lead.event.end_date}`}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))
+                    )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

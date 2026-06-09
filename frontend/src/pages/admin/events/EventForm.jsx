@@ -12,6 +12,7 @@ function EventForm() {
     const { id } = useParams();
     const navigate = useNavigate();
     const isEdit = Boolean(id);
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -106,93 +107,113 @@ function EventForm() {
     }
 
     return (
-        <div>
-            <h1>
-                {isEdit
-                    ? 'Редактирование события'
-                    : 'Создание события'}
-            </h1>
+        <div className="page-container">
+            <div className="page-card">
 
-            <form onSubmit={handleSubmit}>
-
-                <div>
-                    <label>Название</label>
-
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                    />
+                <div className="page-header">
+                    <h1 className="page-title">
+                        {isEdit
+                            ? 'Редактирование события'
+                            : 'Создание события'}
+                    </h1>
                 </div>
 
-                <div>
-                    <label>Описание</label>
+                <form onSubmit={handleSubmit}>
 
-                    <input
-                        type="text"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                <div>
-                    <label>Дата начала</label>
-
-                    <input
-                        type="date"
-                        name="event_date"
-                        value={formData.event_date}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Дата окончания</label>
-
-                    <input
-                        type="date"
-                        name="end_date"
-                        value={formData.end_date}
-                        onChange={handleChange}
-                        min={formData.event_date || new Date().toISOString().split('T')[0]}
-                    />
-                </div>
-
-                <div>
-                    <label>
+                    <Field label="Название" error={errors.name}>
                         <input
-                            type="checkbox"
-                            name="is_active"
-                            checked={formData.is_active}
+                            className="form-input"
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </Field>
+
+                    <Field label="Описание" error={errors.description}>
+                        <input
+                            className="form-input"
+                            type="text"
+                            name="description"
+                            value={formData.description}
                             onChange={handleChange}
                         />
+                    </Field>
 
-                        Активен
-                    </label>
-                </div>
+                    <Field label="Дата начала" error={errors.event_date}>
+                        <input
+                            className="form-input"
+                            type="date"
+                            name="event_date"
+                            value={formData.event_date}
+                            onChange={handleChange}
+                        />
+                    </Field>
 
-                <button type="submit">
-                    Сохранить
-                </button>
-                {
-                    isEdit && (
+                    <Field label="Дата окончания" error={errors.end_date}>
+                        <input
+                            className="form-input"
+                            type="date"
+                            name="end_date"
+                            value={formData.end_date}
+                            onChange={handleChange}
+                            min={formData.event_date || new Date().toISOString().split('T')[0]}
+                        />
+                    </Field>
+
+                    <div>
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="is_active"
+                                checked={formData.is_active}
+                                onChange={handleChange}
+                            />
+
+                            Активен
+                        </label>
+                    </div>
+
+                    <div className="form-actions">
+
                         <button
-                            type="button"
-                            onClick={handleDelete}
-                            style={{
-                                marginLeft: '10px',
-                                backgroundColor: '#d9534f',
-                                color: 'white'
-                            }}
+                            className="btn btn-primary"
+                            type="submit"
                         >
-                            Удалить событие
+                            Сохранить
                         </button>
-                    )}
-            </form>
+                        {
+                            isEdit && (
+                                <button
+                                    className="btn btn-danger"
+                                    type="button"
+                                    onClick={handleDelete}
+                                >
+                                    Удалить событие
+                                </button>
+                            )
+                        }
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }
 
+function Field({ label, error, children }) {
+    return (
+        <div className="form-group">
+            <label className="form-label">
+                {label}
+            </label>
+            {children}
+            {error &&
+                <p className="form-error">
+                    {error}
+                </p>
+            }
+        </div>
+    );
+}
 export default EventForm;

@@ -1,0 +1,112 @@
+.page-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.page-card {
+    background: rgba(255, 255, 255, 0.65);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow:
+            0 1px 3px rgba(0,0,0,0.08),
+            0 8px 24px rgba(0,0,0,0.04);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 24px;
+}
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.page-title {
+    margin: 0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+.dashboard-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filters-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+}
+
+.filter-control {
+    min-width: 180px;
+}
+
+.table-info {
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+}
+
+.section-title {
+    margin: 0 0 16px 0;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    color: var(--text-primary);
+}
+
+/* Контейнер на весь экран */
+.login-screen {
+    display: flex;
+    align-items: center;     /* Центрирование по вертикали */
+    justify-content: center;  /* Центрирование по горизонтали */
+    min-height: 100vh;       /* Высота на весь экран */
+    background: var(--background); /* Ваш фиолетовый фон */
+    padding: 20px;
+}
+
+/* Специфические настройки для карточки логина */
+.login-card {
+    width: 100%;
+    max-width: 400px; /* Ограничиваем ширину, чтобы не была слишком широкой */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Делаем тень чуть глубже */
+}
+
+.connection-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.connection-status.online {
+    background: rgba(34, 197, 94, 0.15);
+    color: #166534;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.connection-status.offline {
+    background: rgba(239, 68, 68, 0.15);
+    color: #991b1b;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}

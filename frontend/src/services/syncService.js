@@ -33,7 +33,8 @@ export async function syncSingleLead(lead, force = false){
             console.log('calling updateLead, updateId:', updateId, 'payload:', payload);
 
             await updateLead(updateId, payload, lead.idempotencyKey);
-        } else {
+        }
+        else {
             const result = await createLead(payload, lead.idempotencyKey);
             await syncLead(result.id);
         }

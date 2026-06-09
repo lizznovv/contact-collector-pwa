@@ -73,4 +73,6 @@ RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
 
 EXPOSE 8080
 
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
