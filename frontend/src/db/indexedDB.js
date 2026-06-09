@@ -21,6 +21,7 @@ export const dbPromise = openDB(DB_NAME, DB_VERSION, {
 
             const pendingStore = db.createObjectStore('pending_leads', {
                 keyPath: 'id',
+                autoIncrement: true
             });
 
             pendingStore.createIndex('syncStatus', 'syncStatus');

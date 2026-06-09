@@ -11,7 +11,7 @@ import {
     validatePhone,
     validateRequired,
     applyPhoneMask
-} from "../../../utils/validators.js";
+} from "../../lead/utils/validators.js";
 function ManagerForm() {
 
     const { id } = useParams();
