@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { saveDraft } from "../../../services/draftsService";
 import { DRAFT_AUTOSAVE_DELAY } from "../utils/leadFormConstants";
 

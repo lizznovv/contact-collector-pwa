@@ -8,7 +8,7 @@ import {
     updatePendingLead,
     deletePendingLead,
 } from "../../../services/pendingLeadsService";
-import { saveDraft, deleteDraft } from "../../../services/draftsService";
+import { deleteDraft } from "../../../services/draftsService";
 import { buildPayload } from "../utils/leadFormUtils";
 
 export function useLeadSubmit({
