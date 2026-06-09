@@ -8,7 +8,7 @@ import {
     updatePendingLead,
     deletePendingLead,
 } from "../../../services/pendingLeadsService";
-import { deleteDraft } from "../../../services/draftsService";
+import {deleteDraft, saveDraft} from "../../../services/draftsService";
 import { buildPayload } from "../utils/leadFormUtils";
 
 export function useLeadSubmit({
@@ -82,6 +82,7 @@ export function useLeadSubmit({
     };
 
     const submitCreate = async (payload) => {
+        console.log('draftId', draftId)
         try {
             await addPendingLead(payload);
 
@@ -122,6 +123,7 @@ export function useLeadSubmit({
                 return;
             }
 
+            await saveDraft(form);
             alert("Ошибка: " + JSON.stringify(error.response?.data));
         }
     };

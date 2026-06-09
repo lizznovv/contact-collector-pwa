@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { saveDraft } from "../../../services/draftsService";
 import { DRAFT_AUTOSAVE_DELAY } from "../utils/leadFormConstants";
 
-export function useDraftAutosave(form, draftLoaded, isEditRoute) {
+export function useDraftAutosave(form, draftLoaded, isEditRoute, setDraftId) {
     useEffect(() => {
         if (!draftLoaded) return;
 
@@ -19,7 +19,10 @@ export function useDraftAutosave(form, draftLoaded, isEditRoute) {
 
         const timeout = setTimeout(async () => {
             try {
-                await saveDraft(form);
+                const saved = await saveDraft(form);
+                if (saved && setDraftId) {
+                    setDraftId(form.id);
+                }
             } catch (error) {
                 console.error("Draft save error:", error);
             }
