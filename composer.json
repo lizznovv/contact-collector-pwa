@@ -1,5 +1,6 @@
 {
     "require": {
-        "mews/purifier": "^3.4"
+        "mews/purifier": "^3.4",
+        "phpoffice/phpspreadsheet": "^5.7"
     }
 }

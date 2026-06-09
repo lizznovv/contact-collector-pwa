@@ -18,50 +18,60 @@ function ManagersTable() {
     }
 
     return (
-        <div>
-            <h1>Managers</h1>
-            <button
-                type="button"
-                onClick={() => navigate('/admin')}
-            >
-                ← Главная
-            </button>
-            <button
-                onClick={() => navigate('/admin/managers/create')}
-            >
-                Add Manager
-            </button>
+        <div className="dashboard-container">
+            <h1 className="page-title">
+                Managers
+            </h1>
 
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Телефон</th>
+            <div className="dashboard-actions">
+                <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={() => navigate('/admin')}
+                >
+                    ← Главная
+                </button>
 
-                </tr>
-                </thead>
+                <button
+                    className="btn btn-primary"
+                    onClick={() => navigate('/admin/managers/create')}
+                >
+                    Add Manager
+                </button>
+            </div>
 
-                <tbody>
-                {managers.map(manager => (
-                    <tr
-                        key={manager.id}
-                        onClick={() =>
-                            navigate(
-                                `/admin/managers/${manager.id}/edit`
-                            )
-                        }
-                    >
-                        <td>{manager.id}</td>
-                        <td>{manager.name}</td>
-                        <td>{manager.email}</td>
-                        <td>{manager.phone}</td>
+            <div className="table-wrapper">
 
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Телефон</th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {managers.map(manager => (
+                            <tr
+                                className="table-row-clickable"
+                                key={manager.id}
+                                onClick={() =>
+                                    navigate(`/admin/managers/${manager.id}/edit`)}
+                            >
+                                <span>
+                                    <td data-label="ID">{manager.id}</td>
+                                    <td data-label="Name">{manager.name}</td>
+                                    <td data-label="Email">{manager.email}</td>
+                                    <td data-label="Телефон">{manager.phone}</td>
+                                </span>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

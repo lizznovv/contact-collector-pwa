@@ -16,48 +16,55 @@ function EventsTable() {
         setEvents(data);
     }
 
-
     return (
-        <div>
-            <h1>Events</h1>
-            <button
-                type="button"
-                onClick={() => navigate('/admin')}
-            >
-                ← Главная
-            </button>
-            <button
-                onClick={() => navigate('/admin/events/create')}
-            >
-                Add Event
-            </button>
+        <div className="dashboard-container">
+            <h1 className="page-title">
+                Events
+            </h1>
 
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Active</th>
-                </tr>
-                </thead>
+            <div className="dashboard-actions">
+                <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={() => navigate('/admin')}
+                >
+                    ← Главная
+                </button>
 
-                <tbody>
-                {events.map(event => (
-                    <tr
-                        key={event.id}
-                        onClick={() =>
-                            navigate(
-                                `/admin/events/${event.id}/edit`
-                            )
-                        }
-                    >
-                        <td>{event.id}</td>
-                        <td>{event.name}</td>
-                        <td>{event.is_active ? 'Yes' : 'No'}</td>
+                <button
+                    className="btn btn-primary"
+                    onClick={() => navigate('/admin/events/create')}
+                >
+                    Add Event
+                </button>
+            </div>
+
+            <div className="table-wrapper">
+                <table className="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Active</th>
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody>
+                    {events.map(event => (
+                        <tr
+                            className="table-row-clickable"
+                            key={event.id}
+                            onClick={() =>
+                                navigate(`/admin/events/${event.id}/edit`)}
+                        >
+                            <td data-label="ID">{event.id}</td>
+                            <td data-label="Name">{event.name}</td>
+                            <td data-label="Active">{event.is_active ? 'Yes' : 'No'}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 

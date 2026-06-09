@@ -62,9 +62,6 @@ export default function LeadFormPage() {
     const [draftLoaded, setDraftLoaded] = useState(false);
 
 
-
-
-
     useEffect(() => {
         const load = async () => {
             try {
@@ -205,6 +202,68 @@ export default function LeadFormPage() {
                 form.company ||
                 form.position ||
                 form.event_ids.length > 0 ||
+                form.product_ids.length > 0;
+
+            if (!hasData) return;
+
+            // Если по какой-то причине в форме пропал id, генерируем на лету,
+            // но лучше починить onChange (см. шаг 2)
+            if (!form.id) {
+                console.warn("Form id is missing! Generating a new one.");
+                form.id = crypto.randomUUID();
+            }
+
+            try {
+                console.log("DRAFT DATA TO SAVE:", form);
+                const savedId = await saveDraft(form);
+                console.log("SAVED ID успешно записан:", savedId);
+            } catch (error) {
+                console.error("DRAFT SAVE ERROR", error);
+            }
+
+        }, 2000);
+
+        return () => clearTimeout(timeout);
+// Убираем draftId из зависимостей, оставляем только форму
+    }, [form, draftLoaded, isEditRoute]);
+
+    useEffect(() => {
+        if (isEditRoute) return;
+
+        const draft = location.state?.draft;
+        if (draft) {
+            setDraftId(draft.id);
+
+            setForm({
+                id: draft.id,
+                full_name: draft.full_name ?? "",
+                phone: draft.phone ?? "",
+                email: draft.email ?? "",
+                company: draft.company ?? "",
+                position: draft.position ?? "",
+                event_id: draft.event_id ?? [],
+                product_ids: draft.product_ids ?? []
+            });
+        }
+
+        setDraftLoaded(true);
+
+    }, [location.state, isEditRoute]);
+
+    useEffect(() => {
+        console.log("AUTOSAVE EFFECT START");
+
+        if (isEditRoute) return;
+        if (!draftLoaded) return; // Убедитесь, что draftLoaded устанавливается в true при монтировании для новой формы!
+
+        const timeout = setTimeout(async () => {
+            const hasData =
+                form.full_name ||
+                form.phone ||
+                form.email ||
+                form.company ||
+                form.position ||
+                form.event_id.length > 0 ||
                 form.product_ids.length > 0;
 
             if (!hasData) return;
@@ -433,7 +492,7 @@ export default function LeadFormPage() {
             console.error("Ошибка:", error.response?.data);
             alert("Ошибка: " + JSON.stringify(error.response?.data));
         } finally {
-        setSaving(false);
+            setSaving(false);
         }
     };
 
@@ -454,171 +513,192 @@ export default function LeadFormPage() {
             (p) => p.id === productId)?.name ?? productId;
 
     return (
-        <div style={{ maxWidth: 600, margin: "0 auto", padding: "24px 16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-                <h2 style={{ margin: 0 }}>
-                    {isEditRoute ? (isEditing ? "Редактирование заявки" : "Просмотр заявки") : "Новая заявка"}
-                </h2>
-                <button
-                    type="button"
-                    onClick={() => navigate('/')}
-                >
-                    ← Главная
-                </button>
-                {isEditRoute && !isEditing && (
-                    <>
+        <div className="page-container">
+            <div className="page-card">
 
-                        <button
-                            type="button"
-                            onClick={() => setIsEditing(true)}
-                            style={{ padding: "8px 20px", cursor: "pointer" }}
-                        >
-                            Редактировать
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleDelete}
-                            disabled={saving}
-                            style={{ padding: "8px 20px", cursor: "pointer" }}
-                        >
-                            {saving ? "Удаление..." : "Удалить лид"}
-                        </button>
-                    </>
+                <div className="page-header">
+                    <h2 className="page-title">
+                        {isEditRoute ? (isEditing ? "Редактирование заявки" : "Просмотр заявки") : "Новая заявка"}
+                    </h2>
+                    <button
+                        className="btn btn-secondary"
+                        type="button"
+                        onClick={() => navigate('/')}
+                    >
+                        ← Главная
+                    </button>
+                    {isEditRoute && !isEditing && (
+                        <>
 
-                )}
+                            <button
+                                className="btn btn-primary"
+                                type="button"
+                                onClick={() => setIsEditing(true)}
+                                style={{ padding: "8px 20px", cursor: "pointer" }}
+                            >
+                                Редактировать
+                            </button>
+                            <button
+                                className="btn btn-danger"
+                                type="button"
+                                onClick={handleDelete}
+                                disabled={saving}
+                                style={{ padding: "8px 20px", cursor: "pointer" }}
+                            >
+                                {saving ? "Удаление..." : "Удалить лид"}
+                            </button>
+                        </>
+
+                    )}
+                </div>
+
+                <form onSubmit={handleSubmit}>
+                    <Field label="ФИО" error={errors.full_name}>
+                        <input
+                            className="form-input"
+                            type="text"
+                            name="full_name"
+                            placeholder="ФИО"
+                            value={form.full_name}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                        />
+                    </Field>
+
+                    <Field label="Телефон" error={errors.phone}>
+                        <input
+                            className="form-input"
+                            type="text"
+                            name="phone"
+                            placeholder="+7 (___) ___-__-__"
+                            value={form.phone}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                        />
+                    </Field>
+
+                    <Field label="Email" error={errors.email}>
+                        <input
+                            className="form-input"
+                            type="email"
+                            name="email"
+                            placeholder="Email"
+                            value={form.email}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                        />
+                    </Field>
+
+                    <Field label="Компания">
+                        <input
+                            className="form-input"
+                            type="text"
+                            name="company"
+                            placeholder="Компания"
+                            value={form.company}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                        />
+                    </Field>
+
+                    <Field label="Должность">
+                        <input
+                            className="form-input"
+                            type="text"
+                            name="position"
+                            placeholder="Должность (опционально)"
+                            value={form.position}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                        />
+                    </Field>
+
+                    <Field label="События" error={errors.event_id}>
+                        {isEditing ? (
+                            <select
+                                className="form-select"
+                                name="event_id"
+                                value={form.event_id ?? ""}
+                                onChange={handleEventsChange}
+                                style={{ width: "100%", minHeight: 50, padding: 8 }}
+                            >
+                                <option value="">— выберите событие —</option>
+                                {events.map((event) => (
+                                    <option key={event.id} value={event.id}>
+                                        {event.name}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <p style={{ margin: 0 }}>
+                                {form.event_id ? getEventName(form.event_id) : "—"}
+                            </p>
+                        )}
+                    </Field>
+
+                    <Field label="Продукты" error={errors.product}>
+                        {isEditing ? (
+                            <select
+                                className="form-select"
+                                multiple
+                                name="product_ids"
+                                value={form.product_ids}
+                                onChange={handleProductsChange}
+                                style={{ width: "100%", minHeight: 50, padding: 8 }}
+                            >
+                                {products.map((product) => (
+                                    <option key={product.id} value={product.id}>
+                                        {product.name}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <p style={{ margin: 0 }}>
+                                {form.product_ids.length > 0
+                                    ? form.product_ids.map(getProductName).join(", ")
+                                    : "—"}
+                            </p>
+                        )}
+                    </Field>
+
+                    {isEditing && (
+                        <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+                            <button
+                                className="btn btn-primary"
+                                type="submit"
+                                disabled={!isFormValid || saving}
+                                style={{ padding: "10px 24px", cursor: "pointer" }}
+                            >
+                                {saving ? "Сохранение..." : "Сохранить"}
+                            </button>
+                            <button
+                                className="btn btn-secondary"
+                                type="button"
+                                onClick={handleCancel}
+                                style={{ padding: "10px 24px", cursor: "pointer" }}
+                            >
+                                Отмена
+                            </button>
+                        </div>
+                    )}
+                </form>
             </div>
-
-            <form onSubmit={handleSubmit}>
-                <Field label="ФИО" error={errors.full_name}>
-                    <input
-                        type="text"
-                        name="full_name"
-                        placeholder="ФИО"
-                        value={form.full_name}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
-                </Field>
-
-                <Field label="Телефон" error={errors.phone}>
-                    <input
-                        type="text"
-                        name="phone"
-                        placeholder="+7 (___) ___-__-__"
-                        value={form.phone}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
-                </Field>
-
-                <Field label="Email" error={errors.email}>
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={form.email}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
-                </Field>
-
-                <Field label="Компания">
-                    <input
-                        type="text"
-                        name="company"
-                        placeholder="Компания"
-                        value={form.company}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
-                </Field>
-
-                <Field label="Должность">
-                    <input
-                        type="text"
-                        name="position"
-                        placeholder="Должность (опционально)"
-                        value={form.position}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
-                </Field>
-
-                <Field label="События" error={errors.event_id}>
-                    {isEditing ? (
-                        <select
-                            name="event_id"
-                            value={form.event_id ?? ""}
-                            onChange={handleEventsChange}
-                            style={{ width: "100%", minHeight: 50, padding: 8 }}
-                        >
-                            <option value="">— выберите событие —</option>
-                            {events.map((event) => (
-                                <option key={event.id} value={event.id}>
-                                    {event.name}
-                                </option>
-                            ))}
-                        </select>
-                    ) : (
-                        <p style={{ margin: 0 }}>
-                            {form.event_id ? getEventName(form.event_id) : "—"}
-                        </p>
-                    )}
-                </Field>
-
-                <Field label="Продукты" error={errors.product}>
-                    {isEditing ? (
-                        <select
-                            multiple
-                            name="product_ids"
-                            value={form.product_ids}
-                            onChange={handleProductsChange}
-                            style={{ width: "100%", minHeight: 50, padding: 8 }}
-                        >
-                            {products.map((product) => (
-                                <option key={product.id} value={product.id}>
-                                    {product.name}
-                                </option>
-                            ))}
-                        </select>
-                    ) : (
-                        <p style={{ margin: 0 }}>
-                            {form.product_ids.length > 0
-                                ? form.product_ids.map(getProductName).join(", ")
-                                : "—"}
-                        </p>
-                    )}
-                </Field>
-
-                {isEditing && (
-                    <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
-                        <button
-                            type="submit"
-                            disabled={!isFormValid || saving}
-                            style={{ padding: "10px 24px", cursor: "pointer" }}
-                        >
-                            {saving ? "Сохранение..." : "Сохранить"}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleCancel}
-                            style={{ padding: "10px 24px", cursor: "pointer" }}
-                        >
-                            Отмена
-                        </button>
-                    </div>
-                )}
-            </form>
         </div>
     );
 }
 
 function Field({ label, error, children }) {
     return (
-        <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>{label}</label>
+        <div className="form-group">
+            <label className="form-label">
+                {label}
+            </label>
             {children}
-            {error && <p style={{ color: "red", margin: "4px 0 0", fontSize: 13 }}>{error}</p>}
+            {error &&
+                <p className="form-error">
+                    {error}
+                </p>
+            }
         </div>
     );
 }

@@ -12,6 +12,7 @@ function ProductForm() {
     const { id } = useParams();
     const navigate = useNavigate();
     const isEdit = Boolean(id);
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         name: '',
         is_active: true,
@@ -87,58 +88,81 @@ function ProductForm() {
     }
 
     return (
-        <div>
-            <h1>
-                {isEdit
-                    ? 'Редактирование продукта'
-                    : 'Создание продукта'}
-            </h1>
+        <div className="page-container">
+            <div className="page-card">
 
-            <form onSubmit={handleSubmit}>
-
-                <div>
-                    <label>Название</label>
-
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                    />
+                <div className="page-header">
+                    <h1 className="page-title">
+                        {isEdit
+                            ? 'Редактирование продукта'
+                            : 'Создание продукта'}
+                    </h1>
                 </div>
 
-                <div>
-                    <label>
+                <form onSubmit={handleSubmit}>
+
+                    <Field label="Название" error={errors.name}>
                         <input
-                            type="checkbox"
-                            name="is_active"
-                            checked={formData.is_active}
+                            className="form-input"
+                            type="text"
+                            name="name"
+                            value={formData.name}
                             onChange={handleChange}
+                            required
                         />
+                    </Field>
 
-                        Активен
-                    </label>
-                </div>
+                    <div>
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="is_active"
+                                checked={formData.is_active}
+                                onChange={handleChange}
+                            />
 
-                <button type="submit">
-                    Сохранить
-                </button>
-                {
-                    isEdit && (
+                            Активен
+                        </label>
+                    </div>
+
+                    <div className="form-actions">
+
                         <button
-                            type="button"
-                            onClick={handleDelete}
-                            style={{
-                                marginLeft: '10px',
-                                backgroundColor: '#d9534f',
-                                color: 'white'
-                            }}
+                            className="btn btn-primary"
+                            type="submit"
                         >
-                            Удалить продукт
+                            Сохранить
                         </button>
-                    )}
-            </form>
+                        {
+                            isEdit && (
+                                <button
+                                    className="btn btn-danger"
+                                    type="button"
+                                    onClick={handleDelete}
+                                >
+                                    Удалить продукт
+                                </button>
+                            )
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+function Field({ label, error, children }) {
+    return (
+        <div className="form-group">
+            <label className="form-label">
+                {label}
+            </label>
+            {children}
+            {error &&
+                <p className="form-error">
+                    {error}
+                </p>
+            }
         </div>
     );
 }
