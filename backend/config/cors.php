@@ -23,6 +23,8 @@ return [
         'https://localhost:5173',
         'https://localhost:5174',
         'https://localhost:4173',
+        'https://localhost:4174',
+
 
     ], //прописать сюда потом наш фронтенд
 

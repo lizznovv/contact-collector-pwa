@@ -21,6 +21,7 @@ export default function LeadFormFields({
         <>
             <Field label="ФИО" error={errors.full_name}>
                 <input
+                    className="form-input"
                     type="text"
                     name="full_name"
                     placeholder="ФИО"
@@ -32,6 +33,7 @@ export default function LeadFormFields({
 
             <Field label="Телефон" error={errors.phone}>
                 <input
+                    className="form-input"
                     type="text"
                     name="phone"
                     placeholder="+7 (___) ___-__-__"
@@ -43,6 +45,7 @@ export default function LeadFormFields({
 
             <Field label="Email" error={errors.email}>
                 <input
+                    className="form-input"
                     type="email"
                     name="email"
                     placeholder="Email"
@@ -54,6 +57,7 @@ export default function LeadFormFields({
 
             <Field label="Компания">
                 <input
+                    className="form-input"
                     type="text"
                     name="company"
                     placeholder="Компания"
@@ -65,6 +69,7 @@ export default function LeadFormFields({
 
             <Field label="Должность">
                 <input
+                    className="form-input"
                     type="text"
                     name="position"
                     placeholder="Должность (опционально)"
@@ -96,6 +101,7 @@ export default function LeadFormFields({
             <Field label="События" error={errors.event_id}>
                 {isEditing ? (
                     <select
+                        className="form-select"
                         name="event_id"
                         value={form.event_id ?? ""}
                         onChange={onEventsChange}
