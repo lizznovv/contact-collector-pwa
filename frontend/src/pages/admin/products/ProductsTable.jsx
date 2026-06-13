@@ -20,7 +20,7 @@ function ProductsTable() {
     return (
         <div className="dashboard-container">
             <h1 className="page-title">
-                Products
+                Продукты
             </h1>
 
             <div className="dashboard-actions">
@@ -36,7 +36,7 @@ function ProductsTable() {
                     className="btn btn-primary"
                     onClick={() => navigate('/admin/products/create')}
                 >
-                    Add Product
+                    Добавить продукт
                 </button>
             </div>
 
@@ -46,8 +46,8 @@ function ProductsTable() {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
-                            <th>Active</th>
+                            <th>Имя</th>
+                            <th>Активен</th>
                         </tr>
                     </thead>
 
@@ -58,11 +58,9 @@ function ProductsTable() {
                                 key={product.id}
                                 onClick={() => navigate(`/admin/products/${product.id}/edit`)}
                             >
-                                <span>
-                                    <td data-label="ID">{product.id}</td>
-                                    <td data-label="Name">{product.name}</td>
-                                    <td data-label="Active">{product.is_active ? 'Yes' : 'No'}</td>
-                                </span>
+                                <td data-label="ID">{product.id}</td>
+                                <td data-label="Имя">{product.name}</td>
+                                <td data-label="Активен">{product.is_active ? 'Да' : 'Нет'}</td>
                             </tr>
                         ))}
                     </tbody>

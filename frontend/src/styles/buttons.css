@@ -1,4 +1,7 @@
 .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 10px 20px;
 
     border: none;
@@ -9,7 +12,12 @@
     font-size: 14px;
     font-weight: 600;
 
-    transition: 0.2s;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.btn:active:not(:disabled) {
+    transform: scale(0.97);
 }
 
 .btn-primary {
@@ -19,19 +27,52 @@
 
 .btn-primary:hover:not(:disabled) {
     background: var(--primary-hover);
+    /* Добавляем мягкое свечение в цвет кнопки */
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .btn-secondary {
-    background: #e5e7eb;
+    background: #f1f5f9;
     color: var(--text-primary);
+    border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #e2e8f0;
 }
 
 .btn-danger {
-    background: var(--danger);
+    background: #ed3131;
     color: white;
+    border: none;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #cc1818;
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
 }
 
 .btn:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
+    box-shadow: none;
+}
+
+.status-cell {
+    position: relative;
+}
+
+.status-text {
+    display: block;
+    text-align: center;
+    padding-right: 110px;
+}
+
+
+.btn-retry-overlay {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
 }

@@ -17,40 +17,40 @@ function AdminDashboard() {
                 Stream Contact
             </h1>
 
-            <div className="dashboard-actions">
+            <div className="dashboard-actions dashboard-actions--admin">
                 <button
                     className="btn btn-primary"
                     onClick={() => navigate('/admin/leads')}
                 >
-                    Leads
+                    Заявки
                 </button>
 
                 <button
                     className="btn btn-primary"
                     onClick={() => navigate('/admin/managers')}
                 >
-                    Managers
+                    Менеджеры
                 </button>
 
                 <button
                     className="btn btn-primary"
                     onClick={() => navigate('/admin/products')}
                 >
-                    Products
+                    Продукты
                 </button>
 
                 <button
                     className="btn btn-primary"
                     onClick={() => navigate('/admin/events')}
                 >
-                    Events
+                    Мероприятия
                 </button>
 
                 <button
                     className="btn btn-danger"
                     onClick={handleLogout}
                 >
-                    Logout
+                    Выйти
                 </button>
             </div>
         </div>

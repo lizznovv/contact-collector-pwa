@@ -9,7 +9,7 @@
 
 .table th {
     padding: 16px;
-    text-align: left;
+    text-align: center;
 
     background: rgba(0,0,0,0.03);
 
@@ -29,4 +29,33 @@
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+}
+
+
+.dashboard-actions--admin {
+    flex-direction: column;
+    align-items: center;
+    max-width: 300px;
+    margin: 24px auto 0;
+}
+
+.dashboard-actions--admin .btn {
+    width: 100%;
+}
+
+.dashboard-container:has(.dashboard-actions--admin) .page-title {
+    text-align: center;
+}
+
+.dashboard-container .page-title {
+    text-align: center;
+    font-size: 50px;
+    white-space: nowrap;
+    margin-bottom: 24px;
+}
+
+
+.leads-table th:last-child {
+    padding-right: 110px;
+    box-sizing: border-box;
 }

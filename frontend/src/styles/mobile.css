@@ -2,6 +2,18 @@
 /* Адаптация таблицы для мобильных устройств */
 @media (max-width: 768px) {
 
+    html, body {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+
+    .table-wrapper {
+        margin: 0;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+
     .table {
         min-width: 100% !important;
     }
@@ -52,9 +64,8 @@
         color: var(--text-secondary);
     }
 
-    .table-wrapper {
-        margin: 0;
-        width: 100%;
+    * {
+        max-width: 100%;
     }
 
     .dashboard-container {
@@ -64,11 +75,24 @@
     }
 
     .page-title {
-        font-size: 32px;
+        font-size: 22px;
+        white-space: nowrap;
     }
 
     .page-card {
         padding: 20px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+        display: flex;
+    }
+
+    .page-header .btn {
+        width: 100%;
     }
 
     .dashboard-header {
@@ -101,6 +125,26 @@
 
     .page-title {
         font-size: 24px;
+    }
+    .status-cell {
+        position: static;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        padding-right: 16px !important;
+    }
+
+    .status-text {
+        display: inline;
+        text-align: left;
+        flex: 1;
+    }
+
+    .btn-retry-overlay {
+        position: static;
+        transform: none;
+        flex-shrink: 0;
     }
 
 }

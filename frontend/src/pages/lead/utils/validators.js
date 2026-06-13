@@ -79,6 +79,7 @@ export function validateLeadForm(fields) {
         event_id:  validateEventId(fields.event_id),
         company:   validateStringField(fields.company, "Компания"),
         position:  validateStringField(fields.position, "Должность"),
+        comments:  validateStringField(fields.position, "Комментарий", 500),
         product:   validateProduct(fields.product),
     };
 }

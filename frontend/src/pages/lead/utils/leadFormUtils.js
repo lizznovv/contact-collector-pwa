@@ -5,6 +5,7 @@ export function buildPayload(form) {
         email:       form.email,
         company:     form.company,
         position:    form.position,
+        comments:    form.comments,
         event_id:    form.event_id,
         product:     form.product_ids,
     };
@@ -38,6 +39,7 @@ export function mapLeadToForm(lead) {
         email:       lead.email      ?? "",
         company:     lead.company    ?? "",
         position:    lead.position   ?? "",
+        comments: lead.comments ?? "",
         event_id:    lead.event_id   ?? null,
         product_ids: lead.products
             ? lead.products.map(p => p.id ?? p)

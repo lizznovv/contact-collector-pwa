@@ -116,7 +116,7 @@ function LeadDashboard() {
             </div>
 
             <h1 className="page-title">
-                My Leads
+                Мои заявки
             </h1>
 
             <div className="dashboard-actions">
@@ -124,7 +124,7 @@ function LeadDashboard() {
                     className="btn btn-primary"
                     onClick={() => navigate('/leads/new')}
                 >
-                    Create Lead
+                    Создать заявку
                 </button>
 
                 <button
@@ -138,20 +138,19 @@ function LeadDashboard() {
                     className="btn btn-danger"
                     onClick={handleLogout}
                 >
-                    Logout
+                    Выйти
                 </button>
             </div>
 
             <div className="table-wrapper">
 
-                <table className="table">
+                <table className="table leads-table">
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
-                        <th>Company</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>Имя</th>
+                        <th>Компания</th>
+                        <th>Статус</th>
                     </tr>
                     </thead>
 
@@ -162,14 +161,14 @@ function LeadDashboard() {
                             key={`${lead.source}-${lead.id}`}
                             onClick={() => navigate(`/leads/${lead.id}`)}
                         >
-                            <td>{lead.id}</td>
-                            <td>{lead.full_name}</td>
-                            <td>{lead.company}</td>
-                            <td>{lead.status}</td>
-                            <td>
+                            <td data-label="ID">{lead.id}</td>
+                            <td data-label="Имя">{lead.full_name}</td>
+                            <td data-label="Компания">{lead.company}</td>
+                            <td data-label="Статус" className="status-cell">
+                                <span className="status-text">{lead.status}</span>
                                 {lead.status === 'error' && (
                                     <button
-                                        className="btn btn-primary"
+                                        className="btn btn-primary btn-retry-overlay"
                                         onClick={(event) => {
                                             event.stopPropagation();
                                             handleRetry(lead);

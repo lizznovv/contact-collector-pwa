@@ -9,14 +9,19 @@ const allowedStatuses = [
 export async function addPendingLead(data) {
     const db = await dbPromise;
 
-    return db.put('pending_leads', {
+    const record = {
         ...data,
         syncStatus: 'pending',
         retryCount: 0,
         idempotencyKey: crypto.randomUUID(),
         createdAt: Date.now(),
         updatedAt: Date.now()
-    });
+    };
+
+    if (record.id === undefined || record.id === null) {
+        delete record.id;
+    }
+    return db.put('pending_leads', record);
 }
 export async function getAllPendingLeads() {
     const db = await dbPromise;
