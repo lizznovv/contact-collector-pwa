@@ -49,3 +49,52 @@
     color: var(--danger);
     font-size: 13px;
 }
+.form-textarea {
+    width: 100%;
+    padding: 12px 14px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    background: white;
+    color: var(--text-primary);
+
+    font-size: 14px;
+}
+.products-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.product-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 10px 14px;
+
+    border: 1px solid var(--border);
+    border-radius: 999px;
+
+    background: white;
+    color: var(--text-primary);
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.product-chip:hover {
+    border-color: var(--primary);
+}
+
+.product-chip.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.chip-icon {
+    font-size: 12px;
+    font-weight: bold;
+}
