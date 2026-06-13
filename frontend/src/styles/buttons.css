@@ -27,7 +27,6 @@
 
 .btn-primary:hover:not(:disabled) {
     background: var(--primary-hover);
-    /* Добавляем мягкое свечение в цвет кнопки */
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
@@ -68,7 +67,6 @@
     text-align: center;
     padding-right: 110px;
 }
-
 
 .btn-retry-overlay {
     position: absolute;

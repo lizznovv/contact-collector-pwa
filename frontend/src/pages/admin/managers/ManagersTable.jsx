@@ -36,7 +36,7 @@ function ManagersTable() {
                     className="btn btn-primary"
                     onClick={() => navigate('/admin/managers/create')}
                 >
-                    Добавить менеджеры
+                    Добавить менеджера
                 </button>
             </div>
 

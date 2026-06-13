@@ -138,11 +138,9 @@ export default function LeadFormFields({
                                             updatedIds = [...(form.product_ids || []), product.id];
                                         }
 
-                                        // ИМИТИРУЕМ СТРУКТУРУ SELECT MULTIPLE ДЛЯ ВАШЕГО ХУКА:
                                         onProductsChange({
                                             target: {
                                                 name: 'product_ids',
-                                                // Создаем фейковый массив выбранных опций, который требует хук
                                                 selectedOptions: updatedIds.map(id => ({ value: String(id) }))
                                             }
                                         });
