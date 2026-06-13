@@ -74,6 +74,25 @@ export default function LeadFormFields({
                 />
             </Field>
 
+            <Field label="Комментарий">
+                <textarea
+                    name="comment"
+                    placeholder="Комментарий (опционально)"
+                    value={form.position}
+                    onChange={onFieldChange}
+                    disabled={!isEditing}
+                    rows={4}
+                    className="form-textarea"
+                    style={{
+                        width: "100%",
+                        resize: "vertical",
+                        minHeight: "100px",
+                        padding: "12px 14px",
+                        boxSizing: "border-box"
+                    }}
+                />
+            </Field>
+
             <Field label="События" error={errors.event_id}>
                 {isEditing ? (
                     <select
@@ -98,22 +117,44 @@ export default function LeadFormFields({
 
             <Field label="Продукты" error={errors.product}>
                 {isEditing ? (
-                    <select
-                        multiple
-                        name="product_ids"
-                        value={form.product_ids}
-                        onChange={onProductsChange}
-                        style={{ width: "100%", minHeight: 50, padding: 8 }}
-                    >
-                        {products.map(product => (
-                            <option key={product.id} value={product.id}>
-                                {product.name}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="products-chips-container">
+                        {products.map((product) => {
+                            const isSelected = form.product_ids?.some(
+                                (id) => String(id) === String(product.id)
+                            );
+
+                            return (
+                                <button
+                                    key={product.id}
+                                    type="button"
+                                    className={`product-chip ${isSelected ? 'active' : ''}`}
+                                    onClick={() => {
+                                        let updatedIds;
+                                        if (isSelected) {
+                                            updatedIds = form.product_ids.filter(
+                                                (id) => String(id) !== String(product.id)
+                                            );
+                                        } else {
+                                            updatedIds = [...(form.product_ids || []), product.id];
+                                        }
+
+                                        onProductsChange({
+                                            target: {
+                                                name: 'product_ids',
+                                                selectedOptions: updatedIds.map(id => ({ value: String(id) }))
+                                            }
+                                        });
+                                    }}
+                                >
+                                    {product.name}
+                                    {isSelected && <span className="chip-icon">✓</span>}
+                                </button>
+                            );
+                        })}
+                    </div>
                 ) : (
-                    <p style={{ margin: 0 }}>
-                        {form.product_ids.length > 0
+                    <p style={{ margin: 0, fontWeight: 500, color: "var(--text-primary)" }}>
+                        {form.product_ids?.length > 0
                             ? form.product_ids.map(getProductName).join(", ")
                             : "—"}
                     </p>

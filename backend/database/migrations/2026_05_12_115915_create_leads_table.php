@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('event_id')->constrained()->cascadeOnDelete();
             $table->string('company');
             $table->string('position')->nullable();
+            $table->text('comments')->nullable();
             $table->string('status')->default('pending');
 
             $table->timestamps();

@@ -19,7 +19,7 @@ function EventsTable() {
     return (
         <div className="dashboard-container">
             <h1 className="page-title">
-                Events
+                Мероприятия
             </h1>
 
             <div className="dashboard-actions">
@@ -35,7 +35,7 @@ function EventsTable() {
                     className="btn btn-primary"
                     onClick={() => navigate('/admin/events/create')}
                 >
-                    Add Event
+                    Добавить мероприятие
                 </button>
             </div>
 
@@ -44,8 +44,8 @@ function EventsTable() {
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
-                        <th>Active</th>
+                        <th>Имя</th>
+                        <th>Активен</th>
                     </tr>
                     </thead>
 
@@ -58,8 +58,8 @@ function EventsTable() {
                                 navigate(`/admin/events/${event.id}/edit`)}
                         >
                             <td data-label="ID">{event.id}</td>
-                            <td data-label="Name">{event.name}</td>
-                            <td data-label="Active">{event.is_active ? 'Yes' : 'No'}</td>
+                            <td data-label="Имя">{event.name}</td>
+                            <td data-label="Активен">{event.is_active ? 'Да' : 'Нет'}</td>
                         </tr>
                     ))}
                     </tbody>

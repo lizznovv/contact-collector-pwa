@@ -20,13 +20,17 @@ export function useLeadSubmit({
     validateForm,
     setOriginalForm,
     setIsEditing,
+    skipAutosaveRef,
 
 }) {
     const navigate  = useNavigate();
     const [saving, setSaving] = useState(false);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();if (!validateForm(form)) return;
+        e.preventDefault();
+        if (!validateForm(form)) return;
+
+        skipAutosaveRef.current = true;
 
         const payload = buildPayload(form);
         setSaving(true);
@@ -51,6 +55,7 @@ export function useLeadSubmit({
             } else {
                 await addPendingLead({ ...payload, _updateId: id });
             }
+            await deleteDraft(form.id);
             alert("Изменения сохранены локально");
             setOriginalForm(form);
             setIsEditing(false);
@@ -66,12 +71,14 @@ export function useLeadSubmit({
                     "Idempotency-Key": crypto.randomUUID(),
                 },
             });
+            await deleteDraft(form.id);
             alert("Lead успешно обновлен");
             setOriginalForm(form);
             setIsEditing(false);
         } catch (error) {
             if (!error.response) {
                 await addPendingLead({ ...payload, _updateId: id });
+                await deleteDraft(form.id);
                 alert("Изменения сохранены локально");
                 setOriginalForm(form);
                 setIsEditing(false);
@@ -86,8 +93,8 @@ export function useLeadSubmit({
         try {
             await addPendingLead(payload);
 
-            if (draftId) {
-                await deleteDraft(draftId);
+            if (form.id) {
+                await deleteDraft(form.id);
             }
 
             const available = await isServerAvailable();
@@ -114,8 +121,8 @@ export function useLeadSubmit({
                             "Idempotency-Key": crypto.randomUUID(),
                         },
                     });
-                    if (draftId) {
-                        await deleteDraft(draftId);
+                    if (form.id) {
+                        await deleteDraft(form.id);
                     }
                     alert("Заявка обновлена");
                     navigate("/dashboard");

@@ -31,6 +31,7 @@ class LeadController extends Controller
                 'event_id' => $validated['event_id'],
                 'company' => $validated['company'] ?? null,
                 'position' => $validated['position'] ?? null,
+                'comments' => $validated['comments'] ?? null,
             ]);
 
             AuditLogger::log(
@@ -78,6 +79,7 @@ class LeadController extends Controller
             'email'     => $validated['email'],
             'company'   => $validated['company'] ?? null,
             'position'  => $validated['position'] ?? null,
+            'comments'  => $validated['comments'] ?? null,
             'event_id'  => $validated['event_id'],
         ]);
 

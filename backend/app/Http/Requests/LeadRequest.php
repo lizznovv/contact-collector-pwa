@@ -49,6 +49,7 @@ class LeadRequest extends FormRequest
             'event_id'  => 'required|integer|exists:events,id',
             'company'   => 'nullable|string|max:255',
             'position'  => 'nullable|string|max:255',
+            'comments'  => 'nullable|string|max:500',
             'product'   => 'required|array',
             'product.*' => 'integer|exists:products,id',
         ];

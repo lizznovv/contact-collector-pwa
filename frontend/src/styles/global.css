@@ -15,9 +15,11 @@ body {
 html,
 body,
 #root {
-    min-height: 100%;
-    margin: 0;
-    padding: 0;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: unset !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Основной стиль приложения */

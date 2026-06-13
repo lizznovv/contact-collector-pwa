@@ -6,6 +6,7 @@ export const INITIAL_FORM = {
     email:       "",
     company:     "",
     position:    "",
+    comments:    "",
     event_id:    null,
     product_ids: [],
 };

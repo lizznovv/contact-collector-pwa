@@ -17,6 +17,7 @@ class Lead extends Model
         'event_id',
         'company',
         'position',
+        'comments',
         'status',
     ];
 

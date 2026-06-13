@@ -18,7 +18,6 @@ export default function LeadFormPage() {
 
     const {events, products} = useReferenceData();
 
-
     const {
         form, setForm,
         originalForm, setOriginalForm,
@@ -33,7 +32,6 @@ export default function LeadFormPage() {
 
     const [draftId, setDraftId] = useState(null);
     const [draftLoaded, setDraftLoaded] = useState(isEditRoute);
-
 
     useEffect(() => {
         if (isEditRoute) return;
@@ -50,6 +48,7 @@ export default function LeadFormPage() {
                 email:       draft.email       ?? "",
                 company:     draft.company     ?? "",
                 position:    draft.position    ?? "",
+                comments:    draft.comments    ?? "",
                 event_id:    draft.event_id    ?? null,
                 product_ids: draft.product_ids ?? [],
             });
@@ -58,7 +57,7 @@ export default function LeadFormPage() {
         setDraftLoaded(true);
     }, [location.state, isEditRoute]);
 
-    useDraftAutosave(form, draftLoaded, isEditRoute, setDraftId);
+    const { skipRef } = useDraftAutosave(form, draftLoaded, isEditing, setDraftId);
 
     const {saving, handleSubmit, handleDelete} = useLeadSubmit({
         form,
@@ -69,6 +68,7 @@ export default function LeadFormPage() {
         validateForm,
         setOriginalForm,
         setIsEditing,
+        skipAutosaveRef: skipRef,
     });
 
     if (loading) return <p>Загрузка...</p>;

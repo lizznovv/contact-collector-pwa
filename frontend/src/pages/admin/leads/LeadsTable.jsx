@@ -89,7 +89,7 @@ function LeadsTable() {
     return(
         <div className="dashboard-container">
             <h1 className="page-title">
-                Leads
+                Заявки
             </h1>
             <p className="table-info">
                 Найдено лидов: {leads.length}
