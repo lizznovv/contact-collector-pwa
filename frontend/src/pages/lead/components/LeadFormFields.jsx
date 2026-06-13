@@ -78,7 +78,7 @@ export default function LeadFormFields({
                 <textarea
                     name="comment"
                     placeholder="Комментарий (опционально)"
-                    value={form.position}
+                    value={form.comment}
                     onChange={onFieldChange}
                     disabled={!isEditing}
                     rows={4}
