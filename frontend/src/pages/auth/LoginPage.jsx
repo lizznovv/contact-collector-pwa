@@ -86,6 +86,7 @@ function LoginPage() {
                                     background: 'none',
                                     border: 'none',
                                     cursor: 'pointer',
+                                    color: '#2E303AFF',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',

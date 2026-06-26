@@ -72,7 +72,7 @@ class LeadController extends Controller
         $validated = $request->validated();
         $lead = Lead::findOrFail($id);
 
-        $old = $lead->only(['full_name', 'phone', 'email', 'company', 'position']);
+        $old = $lead->only(['full_name', 'phone', 'email', 'company', 'position', 'comments']);
         $lead->update([
             'full_name' => $validated['full_name'],
             'phone'     => $validated['phone'],
@@ -93,7 +93,7 @@ class LeadController extends Controller
             entityId: $lead->id,
             payload: [
                 'before' => $old,
-                'after'  => $lead->only(['full_name', 'phone', 'email', 'company', 'position']),
+                'after'  => $lead->only(['full_name', 'phone', 'email', 'company', 'position', 'comments']),
             ]
         );
 
